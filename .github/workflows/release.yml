@@ -36,6 +36,8 @@ jobs:
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
       - run: flutter pub get
+      # Tests build the host's native assets (the tray plugin needs GTK, X11, Xi).
+      - run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libx11-dev libxi-dev
       - run: flutter test
       - run: flutter build apk --release
       - run: cp build/app/outputs/flutter-apk/app-release.apk lucero-sync.apk
