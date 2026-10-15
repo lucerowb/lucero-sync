@@ -31,6 +31,12 @@ class _Quiet implements ServerDelegate {
   @override
   void incomingProgress(String offerId, int receivedBytes, int totalBytes) {}
   @override
+  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) {}
+  @override
+  void backupStatus(PeerDevice from, BackupRunStatus status) {}
+  @override
+  void backupFileProgress(PeerDevice from, String filename, int received, int size) {}
+  @override
   void log(String line) {}
   @override
   void pairingCancelled(String sessionId) {}

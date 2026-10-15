@@ -243,6 +243,15 @@ class PeerClient {
     );
   }
 
+  /// Tells the receiver how far a backup run has got. Best effort: older
+  /// receivers don't have this endpoint, and progress isn't worth retrying.
+  Future<void> backupStatus(PeerDevice peer, Map<String, Object?> status) async {
+    try {
+      await _call(_for(peer), 'POST', peer.uri('/v2/backup/status'),
+          token: peer.tokenOut, json: status, timeout: const Duration(seconds: 5));
+    } catch (_) {}
+  }
+
   // ---- sharing ------------------------------------------------------------------
 
   /// Offers files; waits (up to ~2 minutes) for the other person to accept.

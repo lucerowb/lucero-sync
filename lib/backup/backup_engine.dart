@@ -13,6 +13,7 @@ import '../core/models.dart';
 import '../core/protocol.dart';
 import '../net/discovery.dart';
 import '../net/peer_client.dart';
+import '../security/pairing_crypto.dart';
 import 'library_scanner.dart';
 
 enum BackupPhase { idle, scanning, waitingForPeer, transferring, done, cancelled, error }
@@ -63,6 +64,11 @@ class BackupEngine extends ChangeNotifier {
   bool _cancelRequested = false;
   DateTime _lastNotify = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// The receiver of the current run, told about progress so it can show it.
+  PeerDevice? _reportTo;
+  String _runId = '';
+  DateTime _lastReport = DateTime.fromMillisecondsSinceEpoch(0);
+
   bool get isRunning =>
       phase == BackupPhase.scanning || phase == BackupPhase.waitingForPeer || phase == BackupPhase.transferring;
 
@@ -86,6 +92,8 @@ class BackupEngine extends ChangeNotifier {
     scanned = storedThisRun = skippedThisRun = failedThisRun = 0;
     currentFile = null;
     message = null;
+    _reportTo = peer;
+    _runId = PairingCrypto.randomHex(8);
     await WakelockPlus.enable();
 
     try {
@@ -97,6 +105,7 @@ class BackupEngine extends ChangeNotifier {
       await _refreshStats(peer.deviceId);
 
       peer = await _waitForPeer(peer);
+      _reportTo = peer;
       _setPhase(BackupPhase.transferring);
       await _drainQueue(peer);
 
@@ -113,6 +122,8 @@ class BackupEngine extends ChangeNotifier {
     } finally {
       currentFile = null;
       await _refreshStats(peer.deviceId);
+      unawaited(_report(force: true)); // reads _reportTo before its first await
+      _reportTo = null;
       await WakelockPlus.disable();
       // iOS/macOS copy originals into the app cache; don't let it grow.
       try {
@@ -169,10 +180,12 @@ class BackupEngine extends ChangeNotifier {
           lastTransientAsset = item.assetId;
           await _db.markFailed(item, '$e', countAttempt: transientStreak >= 4);
           peer = await _waitForPeer(peer);
+          _reportTo = peer;
           _setPhase(BackupPhase.transferring);
         }
       }
       await _refreshStats(peer.deviceId);
+      unawaited(_report());
     }
   }
 
@@ -309,6 +322,36 @@ class BackupEngine extends ChangeNotifier {
     phase = p;
     message = msg;
     notifyListeners();
+    // The final state is sent from run()'s finally, once stats are fresh.
+    if (isRunning) unawaited(_report(force: true));
+  }
+
+  /// Sends this run's progress to the receiver: on phase changes, and at
+  /// most every 2 s otherwise.
+  Future<void> _report({bool force = false}) async {
+    final peer = _reportTo;
+    if (peer == null) return;
+    final now = DateTime.now();
+    if (!force && now.difference(_lastReport) < const Duration(seconds: 2)) return;
+    _lastReport = now;
+    final done = storedThisRun + skippedThisRun + failedThisRun;
+    await _client.backupStatus(
+      peer,
+      BackupRunStatus(
+        runId: _runId,
+        state: switch (phase) {
+          BackupPhase.scanning => BackupRunState.scanning,
+          BackupPhase.waitingForPeer => BackupRunState.waiting,
+          BackupPhase.transferring => BackupRunState.running,
+          BackupPhase.done => BackupRunState.done,
+          BackupPhase.cancelled => BackupRunState.cancelled,
+          _ => BackupRunState.error,
+        },
+        done: done,
+        total: done + pending,
+        file: currentFile,
+      ).toJson(),
+    );
   }
 
   void _notifyThrottled() {

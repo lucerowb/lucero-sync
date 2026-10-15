@@ -52,7 +52,16 @@ abstract class ServerDelegate {
 
   void textReceived(PeerDevice from, String text);
 
+  /// An accepted offer (prompted or auto-accepted) is about to receive files.
+  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title);
+
   void incomingProgress(String offerId, int receivedBytes, int totalBytes);
+
+  /// The sender's view of a backup run (see `/v2/backup/status`).
+  void backupStatus(PeerDevice from, BackupRunStatus status);
+
+  /// Bytes of the backup file currently arriving from [from].
+  void backupFileProgress(PeerDevice from, String filename, int received, int size);
 
   void incomingFinished(TransferRecord record);
 
@@ -181,6 +190,7 @@ class LuceroServer extends ChangeNotifier {
 
       if (req.method == 'POST' && route == 'unpair') return await _unpair(req, peer);
       if (req.method == 'POST' && route == 'backup/check') return await _backupCheck(req);
+      if (req.method == 'POST' && route == 'backup/status') return await _backupRunStatus(req, peer);
       if (req.method == 'PUT' && seg.length == 4 && seg[1] == 'backup' && seg[2] == 'files') {
         return await _backupUpload(req, peer, seg[3].toLowerCase());
       }
@@ -396,6 +406,13 @@ class LuceroServer extends ChangeNotifier {
     return FileCheck(sha, RemoteFileState.missing, 0);
   }
 
+  Future<void> _backupRunStatus(HttpRequest req, PeerDevice peer) async {
+    final status = BackupRunStatus.tryParse(await _json(req));
+    if (status == null) return _reply(req, 400, {'status': 'bad_request'});
+    delegate.backupStatus(peer, status);
+    return _reply(req, 200, {'status': 'ok'});
+  }
+
   Future<void> _backupUpload(HttpRequest req, PeerDevice peer, String sha) async {
     final h = req.headers;
     final size = int.tryParse(h.value(Protocol.hSize) ?? '');
@@ -421,8 +438,12 @@ class LuceroServer extends ChangeNotifier {
       }
 
       final part = storage.backupPart(sha);
-      final result = await _receiveInto(req, part, offset: offset, size: size, sha: sha,
-          onDisk: status.state == RemoteFileState.partial ? status.offset : 0);
+      final result = await _receiveInto(req, part,
+          offset: offset,
+          size: size,
+          sha: sha,
+          onDisk: status.state == RemoteFileState.partial ? status.offset : 0,
+          onProgress: (n) => delegate.backupFileProgress(peer, filename, n, size));
       if (result != null) return await _reply(req, result.$1, result.$2);
 
       final relPath = await storage.commitBackup(part, filename, created);
@@ -507,6 +528,7 @@ class LuceroServer extends ChangeNotifier {
     }
 
     final offer = _IncomingOffer(offerId, peer, {for (final f in files) f.id: f}, {for (final f in files) f.id});
+    delegate.incomingStarted(offerId, peer, offer.totalBytes, _filesTitle(files));
     _offers.removeWhere((_, o) => DateTime.now().difference(o.created) > const Duration(hours: 24));
     _offers[offerId] = offer;
     return await _reply(req, 200, await _offerResponse(offer));

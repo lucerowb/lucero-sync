@@ -11,6 +11,7 @@ import '../format.dart';
 import '../open.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/live_transfers.dart';
 
 class ActivityPage extends StatelessWidget {
   const ActivityPage({super.key, required this.app});
@@ -21,10 +22,9 @@ class ActivityPage extends StatelessWidget {
     return ListenableBuilder(
       listenable: app,
       builder: (context, _) {
-        final active = app.shares.active.where((s) => s.isActive).toList();
         return PageScaffold(
           title: 'Activity',
-          subtitle: 'Files and text you sent and received.',
+          subtitle: 'Transfers in progress and everything you sent and received.',
           actions: [
             if (app.history.isNotEmpty)
               TextButton(
@@ -46,12 +46,9 @@ class ActivityPage extends StatelessWidget {
               ),
           ],
           children: [
-            for (final p in app.incoming.values) ...[IncomingProgressCard(progress: p), const SizedBox(height: 10)],
-            for (final s in active) ...[
-              OutgoingShareCard(share: s, onCancel: () => app.shares.cancel(s)),
-              const SizedBox(height: 10),
-            ],
-            if (app.history.isEmpty && active.isEmpty && app.incoming.isEmpty)
+            LiveTransfersSection(app: app),
+            if (!app.live.value.isEmpty && app.history.isNotEmpty) const SectionLabel('History'),
+            if (app.history.isEmpty && app.live.value.isEmpty)
               const EmptyState(
                 icon: Icons.swap_vert_rounded,
                 title: 'Nothing here yet',

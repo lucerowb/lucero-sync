@@ -8,6 +8,7 @@ import '../../core/platform.dart';
 import '../format.dart';
 import '../open.dart';
 import '../widgets/common.dart';
+import '../widgets/live_transfers.dart';
 
 class BackupPage extends StatelessWidget {
   const BackupPage({super.key, required this.app});
@@ -23,6 +24,7 @@ class BackupPage extends StatelessWidget {
             ? 'Copies your photo library to another device. Only new photos are sent.'
             : 'This computer can store backups from your phones.',
         children: [
+          LiveTransfersSection(app: app, label: 'Receiving now', includeBackupOut: false, backupsOnly: true),
           if (Caps.hasPhotoLibrary) ..._sender(context) else _receiverInfo(context),
           if (Caps.hasPhotoLibrary && app.server.totalReceived > 0) ...[
             const SectionLabel('Backups stored on this device'),

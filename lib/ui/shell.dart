@@ -59,7 +59,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     return ListenableBuilder(
       listenable: app,
       builder: (context, _) {
-        final badge = app.incoming.length + app.shares.active.where((s) => s.isActive).length;
+        final badge = app.live.value.count;
         Widget icon(int i, {bool selected = false}) {
           final d = _destinations[i];
           final child = Icon(selected ? d.$2 : d.$1);

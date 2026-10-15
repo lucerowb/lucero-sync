@@ -11,6 +11,7 @@ import '../../core/platform.dart';
 import '../format.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
+import '../widgets/live_transfers.dart';
 
 class _Picked {
   _Picked(this.path, this.size);
@@ -200,10 +201,7 @@ class _SharePageState extends State<SharePage> {
           ],
           children: [
             _ThisDeviceCard(app: app),
-            for (final s in app.shares.active.where((s) => s.isActive).take(3)) ...[
-              const SizedBox(height: 12),
-              OutgoingShareCard(share: s, onCancel: () => app.shares.cancel(s)),
-            ],
+            LiveTransfersSection(app: app),
             if (wide)
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Expanded(flex: 5, child: composer),

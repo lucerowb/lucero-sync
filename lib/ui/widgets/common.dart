@@ -285,7 +285,7 @@ class IncomingProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final frac = progress.total == 0 ? null : progress.received / progress.total;
+    final p = progress;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -293,13 +293,20 @@ class IncomingProgressCard extends StatelessWidget {
           Row(children: [
             Icon(Icons.south_west_rounded, size: 20, color: theme.colorScheme.primary),
             const SizedBox(width: 10),
-            Expanded(child: Text('Receiving from ${progress.fromName}', style: theme.textTheme.titleSmall)),
+            Expanded(
+              child: Text('${p.title} from ${p.fromName}',
+                  style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis),
+            ),
           ]),
           const SizedBox(height: 10),
-          ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: frac, minHeight: 6)),
+          ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: p.fraction, minHeight: 6)),
           const SizedBox(height: 6),
-          Text('${formatBytes(progress.received)} of ${formatBytes(progress.total)}',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          Text(
+            p.stalled
+                ? 'Paused at ${formatBytes(p.received)} of ${formatBytes(p.total)} · waiting for ${p.fromName}'
+                : 'Receiving · ${formatBytes(p.received)} of ${formatBytes(p.total)}',
+            style: theme.textTheme.bodySmall?.copyWith(color: p.stalled ? Brand.amber : theme.colorScheme.onSurfaceVariant),
+          ),
         ]),
       ),
     );

@@ -10,6 +10,7 @@
 ///   POST /v2/unpair                     forget the caller
 ///   POST /v2/backup/check               dedup pre-check for backup files
 ///   PUT  /v2/backup/files/<sha256>      resumable backup upload
+///   POST /v2/backup/status              sender's run progress, so the receiver can show it
 ///   POST /v2/share/offer                offer files or text; waits for accept
 ///   PUT  /v2/share/<offer>/<file>       resumable shared-file upload
 ///   POST /v2/share/<offer>/cancel       sender cancelled

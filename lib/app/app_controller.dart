@@ -16,6 +16,9 @@ import '../net/server.dart';
 import '../security/pairing_crypto.dart';
 import '../share/share_sender.dart';
 import '../storage/storage.dart';
+import 'live_transfers.dart';
+
+export 'live_transfers.dart';
 
 /// Something the user must answer, shown by the UI as a dialog.
 sealed class AppPrompt {
@@ -47,11 +50,17 @@ class TextReceived extends AppPrompt {
 
 /// Live progress of a file transfer coming in.
 class IncomingProgress {
-  IncomingProgress(this.offerId, this.fromName, this.total);
+  IncomingProgress(this.offerId, this.fromName, this.total, this.title);
   final String offerId;
   final String fromName;
+  final String title;
   int received = 0;
   int total;
+  DateTime updatedAt = DateTime.now();
+
+  /// No bytes for a while: the sender probably lost the connection.
+  bool get stalled => DateTime.now().difference(updatedAt) > const Duration(seconds: 30);
+  double? get fraction => total == 0 ? null : (received / total).clamp(0.0, 1.0);
 }
 
 enum PeerStatus { online, offline, identityChanged }
@@ -75,6 +84,12 @@ class AppController extends ChangeNotifier implements ServerDelegate {
   List<TransferRecord> history = [];
   final prompts = <AppPrompt>[];
   final incoming = <String, IncomingProgress>{};
+  final incomingBackups = <String, IncomingBackup>{};
+
+  /// Everything in flight in either direction, updated about once a second
+  /// while anything is active. Drives the nav badge, tray and Live Activity.
+  final live = ValueNotifier<LiveSummary>(const LiveSummary([]));
+  Timer? _liveTimer;
   final logLines = <String>[];
 
   bool receiving = true;
@@ -107,6 +122,8 @@ class AppController extends ChangeNotifier implements ServerDelegate {
       notifyListeners();
     });
     server.addListener(notifyListeners);
+    backup.addListener(_scheduleLive);
+    addListener(_scheduleLive);
 
     receiving = await db.getBool('receiving', fallback: true);
     includeVideos = await db.getBool('include_videos', fallback: true);
@@ -356,11 +373,14 @@ class AppController extends ChangeNotifier implements ServerDelegate {
   Future<bool> approveShare(ShareOfferPrompt prompt) async {
     final request = ShareRequest(prompt);
     final ok = await _ask(request);
-    if (ok) {
-      incoming[prompt.offerId] = IncomingProgress(prompt.offerId, prompt.from.name, prompt.totalBytes);
-      if (request.alwaysAccept) await setAutoAccept(prompt.from, true);
-    }
+    if (ok && request.alwaysAccept) await setAutoAccept(prompt.from, true);
     return ok;
+  }
+
+  @override
+  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) {
+    incoming[offerId] = IncomingProgress(offerId, from.name, totalBytes, title);
+    notifyListeners();
   }
 
   @override
@@ -372,8 +392,134 @@ class AppController extends ChangeNotifier implements ServerDelegate {
     if (p == null) return;
     p
       ..received = receivedBytes
-      ..total = totalBytes;
+      ..total = totalBytes
+      ..updatedAt = DateTime.now();
     notifyListeners();
+  }
+
+  @override
+  void backupStatus(PeerDevice from, BackupRunStatus status) {
+    final b = incomingBackups.putIfAbsent(from.deviceId, () => IncomingBackup(from.deviceId, from.name));
+    if (b.runId != status.runId) {
+      b
+        ..runId = status.runId
+        ..storedHere = 0;
+    }
+    b
+      ..fromName = from.name
+      ..state = status.state
+      ..done = status.done
+      ..total = status.total
+      ..updatedAt = DateTime.now();
+    if (status.file != null && status.file != b.file) {
+      b
+        ..file = status.file
+        ..fileReceived = 0
+        ..fileSize = 0;
+    }
+    notifyListeners();
+  }
+
+  @override
+  void backupFileProgress(PeerDevice from, String filename, int received, int size) {
+    final b = incomingBackups.putIfAbsent(from.deviceId, () => IncomingBackup(from.deviceId, from.name));
+    if (b.finished) b.state = BackupRunState.running; // a sender too old to report status
+    b
+      ..file = filename
+      ..fileReceived = received
+      ..fileSize = size
+      ..updatedAt = DateTime.now();
+    notifyListeners();
+  }
+
+  // ---- live summary ---------------------------------------------------------------
+
+  void _scheduleLive() {
+    _refreshLive();
+    _liveTimer ??= Timer.periodic(const Duration(seconds: 1), (_) => _refreshLive(tick: true));
+  }
+
+  void _refreshLive({bool tick = false}) {
+    // Finished incoming backups linger briefly so "Done" is visible.
+    incomingBackups.removeWhere((_, b) =>
+        (b.finished && DateTime.now().difference(b.updatedAt) > const Duration(seconds: 15)) ||
+        DateTime.now().difference(b.updatedAt) > const Duration(minutes: 10));
+    incoming.removeWhere((_, p) => DateTime.now().difference(p.updatedAt) > const Duration(hours: 1));
+
+    final items = <LiveItem>[
+      for (final s in shares.active.where((s) => s.isActive))
+        LiveItem(
+          id: s.id,
+          direction: LiveDirection.sending,
+          backup: false,
+          peerName: s.peer.name,
+          title: s.title,
+          status: switch (s.state) {
+            ShareState.preparing => 'Preparing',
+            ShareState.waitingForAccept => 'Waiting for ${s.peer.name} to accept',
+            _ => '${_bytes(s.sentBytes)} of ${_bytes(s.totalBytes)}',
+          },
+          fraction: s.state == ShareState.sending ? s.fraction : null,
+        ),
+      for (final p in incoming.values)
+        LiveItem(
+          id: p.offerId,
+          direction: LiveDirection.receiving,
+          backup: false,
+          peerName: p.fromName,
+          title: p.title,
+          status: p.stalled ? 'Paused, waiting for ${p.fromName}' : '${_bytes(p.received)} of ${_bytes(p.total)}',
+          fraction: p.fraction,
+        ),
+      if (backup.isRunning)
+        LiveItem(
+          id: 'backup-out',
+          direction: LiveDirection.sending,
+          backup: true,
+          peerName: backupTarget?.name ?? 'device',
+          title: 'Photo backup',
+          status: switch (backup.phase) {
+            BackupPhase.scanning => 'Scanning library · ${backup.scanned}',
+            BackupPhase.waitingForPeer => 'Waiting for ${backupTarget?.name ?? 'device'}',
+            _ => '${backup.storedThisRun + backup.skippedThisRun + backup.failedThisRun} of '
+                '${backup.storedThisRun + backup.skippedThisRun + backup.failedThisRun + backup.pending}',
+          },
+          fraction: backup.phase == BackupPhase.transferring ? backup.fraction : null,
+        ),
+      for (final b in incomingBackups.values.where((b) => !b.finished))
+        LiveItem(
+          id: 'backup-in-${b.peerId}',
+          direction: LiveDirection.receiving,
+          backup: true,
+          peerName: b.fromName,
+          title: 'Photo backup',
+          status: b.stalled
+              ? 'Paused, waiting for ${b.fromName}'
+              : b.total > 0
+                  ? '${b.done} of ${b.total}'
+                  : 'Receiving',
+          fraction: b.fraction,
+        ),
+    ];
+    live.value = LiveSummary(items);
+    if (items.isEmpty && incomingBackups.isEmpty) {
+      _liveTimer?.cancel();
+      _liveTimer = null;
+    } else if (tick) {
+      notifyListeners(); // so "paused" states and lingering cards update
+    }
+  }
+
+  static String _bytes(int n) {
+    if (n < 1024) return '$n B';
+    const units = ['KB', 'MB', 'GB', 'TB'];
+    var v = n / 1024;
+    var i = 0;
+    while (v >= 1024 && i < units.length - 1) {
+      v /= 1024;
+      i++;
+    }
+    return '${v.toStringAsFixed(v < 10 ? 1 : 0)} ${units[i]}';
   }
 
   @override
@@ -398,6 +544,7 @@ class AppController extends ChangeNotifier implements ServerDelegate {
 
   @override
   void dispose() {
+    _liveTimer?.cancel();
     _nearbySub?.cancel();
     discovery.dispose();
     server.stop();

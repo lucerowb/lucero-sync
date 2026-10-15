@@ -374,3 +374,49 @@ class TransferRecord {
         createdAtMs: r['created_at'] as int,
       );
 }
+
+/// Where a backup run is, as reported by the sender over `/v2/backup/status`.
+enum BackupRunState { scanning, waiting, running, done, cancelled, error }
+
+class BackupRunStatus {
+  const BackupRunStatus({
+    required this.runId,
+    required this.state,
+    required this.done,
+    required this.total,
+    this.file,
+    this.message,
+  });
+
+  final String runId;
+  final BackupRunState state;
+
+  /// Library items finished this run (stored, already there, or failed).
+  final int done;
+  final int total;
+  final String? file;
+  final String? message;
+
+  bool get finished => state == BackupRunState.done || state == BackupRunState.cancelled || state == BackupRunState.error;
+
+  Map<String, Object?> toJson() => {
+        'run': runId,
+        'state': state.name,
+        'done': done,
+        'total': total,
+        if (file != null) 'file': file,
+        if (message != null) 'message': message,
+      };
+
+  static BackupRunStatus? tryParse(Map<String, dynamic> m) {
+    final run = m['run'];
+    final state = BackupRunState.values.where((s) => s.name == m['state']).firstOrNull;
+    final done = m['done'];
+    final total = m['total'];
+    if (run is! String || !RegExp(r'^[0-9a-f]{8,64}$').hasMatch(run) || state == null) return null;
+    if (done is! int || total is! int || done < 0 || total < 0) return null;
+    String? clip(Object? v) => v is String ? (v.length > 200 ? v.substring(0, 200) : v) : null;
+    return BackupRunStatus(
+        runId: run, state: state, done: done, total: total, file: clip(m['file']), message: clip(m['message']));
+  }
+}

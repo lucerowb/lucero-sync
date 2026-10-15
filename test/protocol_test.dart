@@ -25,6 +25,9 @@ class FakeDelegate implements ServerDelegate {
   final codes = <String>[];
   final texts = <String>[];
   final records = <TransferRecord>[];
+  final runStatuses = <BackupRunStatus>[];
+  final fileProgress = <(String, int, int)>[];
+  final started = <String>[];
 
   @override
   Future<bool> approvePairing(PairingPrompt prompt) async {
@@ -51,6 +54,13 @@ class FakeDelegate implements ServerDelegate {
   void peersChanged() {}
   @override
   void incomingProgress(String offerId, int receivedBytes, int totalBytes) {}
+  @override
+  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) => started.add(offerId);
+  @override
+  void backupStatus(PeerDevice from, BackupRunStatus status) => runStatuses.add(status);
+  @override
+  void backupFileProgress(PeerDevice from, String filename, int received, int size) =>
+      fileProgress.add((filename, received, size));
   @override
   void backupStored(PeerDevice from, String relPath) {}
   @override
@@ -235,6 +245,24 @@ void main() {
       expect(again.status, Protocol.skipped);
     });
 
+    test('the receiver sees backup progress: run status and file bytes', () async {
+      final (bSeesA, _) = await pair();
+      await b.client.backupStatus(
+          bSeesA, const BackupRunStatus(runId: 'abcdef12', state: BackupRunState.running, done: 3, total: 10, file: 'IMG_1.HEIC').toJson());
+      expect(a.delegate.runStatuses.single.done, 3);
+      expect(a.delegate.runStatuses.single.total, 10);
+      expect(a.delegate.runStatuses.single.file, 'IMG_1.HEIC');
+
+      final f = await randomFile(root, 'p.jpg', 64 * 1024);
+      final desc = FileDescriptor(sha256: await sha256OfFile(f.path), filename: 'p.jpg', size: 64 * 1024, createdAtMs: 0);
+      await b.client.backupUpload(bSeesA, desc, f, 0, onProgress: (_) {});
+      expect(a.delegate.fileProgress.last, ('p.jpg', 64 * 1024, 64 * 1024));
+
+      // Malformed reports are rejected, not passed on.
+      expect(BackupRunStatus.tryParse({'run': '../x', 'state': 'running', 'done': 1, 'total': 2}), isNull);
+      expect(BackupRunStatus.tryParse({'run': 'abcdef12', 'state': 'bogus', 'done': 1, 'total': 2}), isNull);
+    });
+
     test('a corrupted upload is discarded, never saved', () async {
       final (bSeesA, _) = await pair();
       final f = await randomFile(root, 'x.jpg', 2048);
@@ -286,6 +314,15 @@ void main() {
       await _until(() => !share.isActive);
       expect(share.state, ShareState.declined);
       expect(a.storage.receivedRoot.listSync().whereType<File>(), isEmpty);
+    });
+
+    test('the receiver is told when an accepted transfer starts', () async {
+      final (bSeesA, _) = await pair();
+      final f = await randomFile(root, 's.bin', 4096);
+      final share = ShareSender(b.db, b.client).sendFiles(bSeesA, [f.path]);
+      await _until(() => !share.isActive);
+      expect(share.state, ShareState.done, reason: share.error);
+      expect(a.delegate.started, [share.id]);
     });
 
     test('auto-accept skips the prompt for trusted devices', () async {
