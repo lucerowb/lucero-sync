@@ -131,7 +131,7 @@ class _SendPageState extends State<SendPage> {
                 onTap: () => setState(() => _selectedId = p.deviceId),
                 leading: Icon(p.deviceId == _selectedId ? Icons.radio_button_checked : Icons.radio_button_unchecked),
                 title: Text(p.name),
-                subtitle: Text('${p.host}:${p.port}${_nearby.containsKey(p.deviceId) ? ' · online' : ''}'),
+                subtitle: Text(_nearby.containsKey(p.deviceId) ? 'Online · ready to sync' : 'Not seen on this Wi-Fi yet'),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: e.isRunning
@@ -147,7 +147,7 @@ class _SendPageState extends State<SendPage> {
               ListTile(
                 leading: const Icon(Icons.wifi_tethering),
                 title: Text(n.name),
-                subtitle: Text('Found nearby · ${n.host}'),
+                subtitle: const Text('Found on your Wi-Fi · tap to pair'),
                 trailing: const Text('Pair'),
                 onTap: () => _manualOrPin(from: n),
               ),

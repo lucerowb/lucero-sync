@@ -1,6 +1,6 @@
 # Architecture
 
-How Lucero Sync works internally: the stack, the permissions it needs, the sync database, the deduplication rules and the wire protocol. For installation and usage see the [README](README.md) or the [user guide](https://lucerowb.github.io/lucero-sync/guide.html).
+How Lucero Sync works internally: the stack, the permissions it needs, the sync database, the deduplication rules and the wire protocol. For installation and usage see the [README](README.md) or the [user guide](https://lucerosync.lucerowb.com/guide.html).
 
 ## Tech stack: Flutter
 
@@ -11,6 +11,7 @@ How Lucero Sync works internally: the stack, the permissions it needs, the sync 
 | Sync state | `sqflite` | SQLite on both platforms. |
 | Hashing | `crypto` + `Isolate.run` | Streams SHA-256 on a background isolate so multi-GB videos don't freeze the UI. |
 | Discovery | `bonsoir` (mDNS/Bonjour) + QR (`qr_flutter`, `mobile_scanner`) + manual IP | Discovery finds the device automatically. The QR code carries the PIN, so pairing takes one scan. Manual IP is the fallback. |
+| QR scanning | `mobile_scanner` 7 | Uses Apple's Vision framework on iOS, entirely on the device. On Android it uses Google ML Kit, which sends Google diagnostic data (see the privacy policy). Replacing it with an offline decoder such as zxing is on the roadmap. |
 | Keep-alive | `wakelock_plus` | Keeps the screen on while syncing or receiving (see Limitations). |
 
 ## Native permissions

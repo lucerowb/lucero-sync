@@ -8,13 +8,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
 ![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android-informational)
 
-[Website](https://lucerowb.github.io/lucero-sync/) · [User guide](https://lucerowb.github.io/lucero-sync/guide.html) · [Download](https://github.com/lucerowb/lucero-sync/releases/latest) · [Architecture](ARCHITECTURE.md)
+[Website](https://lucerosync.lucerowb.com/) · [User guide](https://lucerosync.lucerowb.com/guide.html) · [Download](https://github.com/lucerowb/lucero-sync/releases/latest) · [Architecture](ARCHITECTURE.md)
 
 </div>
 
 ---
 
 Lucero Sync copies the photo library on one phone to another phone on the same Wi-Fi network. The two phones talk directly to each other, so your photos never go to a server, and the app needs no account, subscription or internet connection.
+
+<p align="center">
+  <img src="docs/assets/screens/receive.png" width="200" alt="Receive screen with pairing QR code and log">
+  <img src="docs/assets/screens/transfer.png" width="200" alt="Send screen mid-transfer">
+  <img src="docs/assets/screens/done.png" width="200" alt="Send screen, up to date">
+</p>
 
 ## Features
 
@@ -25,7 +31,7 @@ Lucero Sync copies the photo library on one phone to another phone on the same W
 - **Resumes where it stopped**, down to the byte, after Wi-Fi drops, app restarts or a receiver that changed IP.
 - **Pairing in one scan.** The receiver shows a QR code; Bonjour/mDNS discovery and manual IP entry also work.
 - **Either phone can send or receive.** iPhone → Android is the main use case, but every direction works.
-- **No tracking.** No analytics, ads or crash reporting. See the [privacy policy](https://lucerowb.github.io/lucero-sync/privacy.html).
+- **No analytics, ads or accounts of our own.** On Android, the QR scanner's Google ML Kit library sends Google diagnostic data; the iPhone app sends nothing. See the [privacy policy](https://lucerosync.lucerowb.com/privacy.html).
 
 ## Install
 
@@ -34,7 +40,7 @@ Lucero Sync copies the photo library on one phone to another phone on the same W
 | **Android** (receiver) | Download `lucero-sync.apk` from the [latest release](https://github.com/lucerowb/lucero-sync/releases/latest) and open it on your phone. |
 | **iPhone** (sender) | Build from source with a free Apple ID (below), or sideload the unsigned `.ipa` from the release with [AltStore](https://altstore.io) or [SideStore](https://sidestore.io). |
 
-The [user guide](https://lucerowb.github.io/lucero-sync/guide.html) walks through installing, pairing and running your first sync, with a troubleshooting section.
+The [user guide](https://lucerosync.lucerowb.com/guide.html) walks through installing, pairing and running your first sync, with a troubleshooting section.
 
 ## Build from source
 

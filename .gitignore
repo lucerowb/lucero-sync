@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local Claude Code config
 .claude/
+
+# Working notes for legal counsel (not for publication)
+LEGAL_REVIEW.md

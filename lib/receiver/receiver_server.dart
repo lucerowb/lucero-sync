@@ -25,6 +25,7 @@ class ReceiverServer extends ChangeNotifier {
   final List<String> log = [];
   int storedThisSession = 0;
   int skippedThisSession = 0;
+  int totalReceived = 0;
 
   bool get isRunning => _server != null;
   int? get port => _server?.port;
@@ -33,11 +34,12 @@ class ReceiverServer extends ChangeNotifier {
   Future<void> start({int port = Protocol.defaultPort}) async {
     if (_server != null) return;
     _storage = await ReceiverStorage.open();
+    totalReceived = await _db.receivedCount();
     final server = await HttpServer.bind(InternetAddress.anyIPv4, port);
     server.idleTimeout = const Duration(seconds: 30);
     _server = server;
     server.listen((req) => unawaited(_handle(req)));
-    _log('Listening on port ${server.port} → ${_storage!.root.path}');
+    _log('Listening on port ${server.port} → ${_storage!.displayLocation}');
   }
 
   Future<void> stop() async {
@@ -103,6 +105,7 @@ class ReceiverServer extends ChangeNotifier {
         return FileCheck(sha, RemoteFileState.exists, 0);
       }
       await _db.deleteReceived(rec.sha256);
+      totalReceived--;
     }
     final part = _storage!.partFile(sha);
     if (await part.exists()) return FileCheck(sha, RemoteFileState.partial, await part.length());
@@ -202,6 +205,7 @@ class ReceiverServer extends ChangeNotifier {
       await _storage!.notifyMediaScanner(relPath);
 
       storedThisSession++;
+      totalReceived++;
       _log('Stored $relPath');
       return await _json(req, 200, {'status': Protocol.stored, 'path': relPath});
     } finally {

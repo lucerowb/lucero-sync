@@ -15,10 +15,24 @@ class LuceroSyncApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Brand colours shared with the website: safelight amber on darkroom ink.
+    const amber = Color(0xFFFFA24A);
+    const ink = Color(0xFF100D0A);
     return MaterialApp(
       title: 'Lucero Sync',
-      theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
-      darkTheme: ThemeData(colorSchemeSeed: Colors.teal, brightness: Brightness.dark, useMaterial3: true),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: amber, useMaterial3: true),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: amber,
+          brightness: Brightness.dark,
+          primary: amber,
+          onPrimary: ink,
+          surface: ink,
+        ),
+        scaffoldBackgroundColor: ink,
+      ),
       home: const HomePage(),
     );
   }

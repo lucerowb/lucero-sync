@@ -121,7 +121,7 @@ flutter pub get</pre></li>
         <li><strong>iPhone:</strong> open <strong>Send</strong>. iOS asks to find devices on your local network; tap <strong>Allow</strong>.</li>
         <li>Tap <strong>Scan QR</strong>, allow camera access, and point the camera at the Android screen. The receiver is now saved under "Receivers".</li>
       </ol>
-      <p>Can't scan? Tap the receiver under <strong>Found nearby</strong> and type the PIN, or use <strong>Enter IP</strong> with the address and PIN shown on Android.</p>
+      <p>Can't scan? Tap the receiver marked <strong>Found on your Wi-Fi · tap to pair</strong> and type the PIN, or use <strong>Enter IP</strong> with the address and PIN shown on Android.</p>
       <div class="callout warn">
         <span class="mono">Don't skip "Allow"</span>
         <p>If you tap Don't Allow on the local network prompt, the iPhone can't reach the receiver, and you won't see an error that explains why. You can turn it back on under <strong>Settings → Privacy &amp; Security → Local Network → Lucero Sync</strong>.</p>
@@ -171,6 +171,10 @@ flutter pub get</pre></li>
 
       <h2 id="other-directions">Other directions</h2>
       <p>Every phone can both send and receive. To back up an Android phone to an iPhone, start <strong>Receive</strong> on the iPhone and <strong>Send</strong> from Android. On iPhone, received files appear in the <strong>Files</strong> app under <strong>On My iPhone → Lucero Sync</strong>. You can also pair one sender with several receivers; each keeps its own sync history.</p>
+      <div class="callout warn">
+        <span class="mono">iPhone as receiver</span>
+        <p>Files received on an iPhone live inside the app, and <strong>iOS deletes them if you uninstall Lucero Sync</strong>. Copy them out with the Files app first. Android receivers save to <code>Pictures/LuceroSync</code>, which survives uninstalling.</p>
+      </div>
 
       <h2 id="troubleshooting">Troubleshooting</h2>
       <table>
@@ -178,7 +182,7 @@ flutter pub get</pre></li>
         <tbody>
           <tr><td>The iPhone app closes immediately after opening</td><td>Build the latest version. Old builds lack the UIScene setup that recent iOS versions require.</td></tr>
           <tr><td>"Waiting for receiver…" forever</td><td>Make sure Android shows <strong>Receive</strong> with the server started, both phones are on the same network, and local network access is allowed on iPhone. Guest Wi-Fi and "AP/client isolation" block the connection.</td></tr>
-          <tr><td>The receiver never appears under "Found nearby"</td><td>Some routers block Bonjour/mDNS. Use <strong>Scan QR</strong> or <strong>Enter IP</strong> instead; that works fine.</td></tr>
+          <tr><td>The receiver never shows up as "Found on your Wi-Fi"</td><td>Some routers block Bonjour/mDNS. Use <strong>Scan QR</strong> or <strong>Enter IP</strong> instead; that works fine.</td></tr>
           <tr><td>"Receiver rejected the PIN"</td><td>Delete the receiver on iPhone (trash icon) and scan the QR code again.</td></tr>
           <tr><td>Some items failed</td><td>Usually iCloud originals that couldn't be downloaded. Connect to the internet and tap <strong>Retry failed</strong>.</td></tr>
           <tr><td>Photos aren't in the Android Gallery</td><td>All files access wasn't granted, so files went to the app's private folder. Grant it in the Receive tab and sync again.</td></tr>

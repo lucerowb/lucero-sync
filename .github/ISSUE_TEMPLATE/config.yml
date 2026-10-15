@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: User guide & troubleshooting
-    url: https://lucerowb.github.io/lucero-sync/guide.html
+    url: https://lucerosync.lucerowb.com/guide.html
     about: Check the guide first — most setup problems are covered there.
   - name: Report a security vulnerability
     url: https://github.com/lucerowb/lucero-sync/security/advisories/new

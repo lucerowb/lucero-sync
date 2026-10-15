@@ -278,6 +278,24 @@ section { padding: 110px 0; }
 .route.good li::before { content: "✓"; color: var(--amber); }
 @media (max-width: 760px) { .compare { grid-template-columns: 1fr; } }
 
+/* screenshots — a proof sheet of the real app */
+.screens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; align-items: start; }
+.screens figure { margin: 0; }
+.screens figure:nth-child(even) { margin-top: 48px; }
+.screens img {
+  display: block; width: 100%; height: auto; border-radius: 30px;
+  border: 1px solid var(--line); background: var(--ink-2);
+  box-shadow: 0 30px 60px -30px #000, 0 0 0 6px #0b0907;
+  transition: transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s;
+}
+.screens img:hover { transform: translateY(-6px) rotate(-.6deg); box-shadow: 0 40px 70px -30px #000, 0 0 0 6px #0b0907, 0 0 40px -10px var(--glow); }
+.screens figcaption { margin-top: 16px; text-align: center; }
+@media (max-width: 900px) {
+  .screens { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 62%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
+  .screens figure { scroll-snap-align: center; }
+  .screens figure:nth-child(even) { margin-top: 0; }
+}
+
 /* steps */
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: step; }
 .step { position: relative; padding-top: 70px; }

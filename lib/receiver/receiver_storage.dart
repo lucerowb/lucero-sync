@@ -46,6 +46,13 @@ class ReceiverStorage {
     return storage;
   }
 
+  /// Where the user can find the files, in their terms rather than a sandbox path.
+  String get displayLocation {
+    if (Platform.isIOS) return 'Files › On My iPhone › Lucero Sync';
+    if (isPublic) return 'Pictures/LuceroSync';
+    return 'Android/data/…/files/LuceroSync (grant all files access for Gallery)';
+  }
+
   Directory get tmpDir => Directory(p.join(root.path, '.lucero_tmp'));
 
   File partFile(String sha256) => File(p.join(tmpDir.path, '$sha256.part'));

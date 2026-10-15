@@ -16,7 +16,7 @@ dependencies:
   path_provider: ^2.1.4
   crypto: ^3.0.6             # SHA-256 content hashing
   bonsoir: ^5.1.10           # mDNS / Bonjour (pinned to 5.x event API)
-  mobile_scanner: ^5.2.3     # QR pairing (scan)
+  mobile_scanner: ^7.4.2     # QR pairing (scan)
   qr_flutter: ^4.1.0         # QR pairing (display)
   permission_handler: ^11.3.1 # Android MANAGE_EXTERNAL_STORAGE prompt
   wakelock_plus: ^1.2.8      # keep the device awake during a sync
@@ -25,6 +25,17 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+
+# Regenerate app icons with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: assets/icon/icon.png
+  ios: true
+  remove_alpha_ios: true
+  android: ic_launcher
+  min_sdk_android: 24
+  adaptive_icon_background: "#100D0A"
+  adaptive_icon_foreground: assets/icon/foreground.png

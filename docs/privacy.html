@@ -36,7 +36,7 @@
     <div class="wrap">
       <span class="mono">Legal</span>
       <h1>Privacy policy</h1>
-      <p>In one sentence: Lucero Sync doesn't collect, store or send any of your data to us or anyone else. Your photos only move between your own devices.</p>
+      <p>In one sentence: Lucero Sync never sends your photos or personal data to us, and your photos only move between your own devices. The one exception is limited diagnostic data that Google's QR-scanning library sends to Google on Android, explained below.</p>
       <p class="mono updated">Last updated: 15 October 2026</p>
     </div>
   </div>
@@ -63,7 +63,7 @@
       <table>
         <tbody>
           <tr><td><strong>Personal data collected by us</strong></td><td>None</td></tr>
-          <tr><td><strong>Analytics, crash reporting, ads</strong></td><td>None</td></tr>
+          <tr><td><strong>Analytics, crash reporting, ads</strong></td><td>None of our own. On Android only, a Google library bundled for QR scanning (ML Kit) sends Google diagnostic data; <a href="#third-parties">details</a>.</td></tr>
           <tr><td><strong>Accounts</strong></td><td>None; there's nothing to sign up for</td></tr>
           <tr><td><strong>Servers operated by us</strong></td><td>None</td></tr>
           <tr><td><strong>Where your photos go</strong></td><td>Only to devices you pair, on your local network</td></tr>
@@ -72,7 +72,7 @@
       <p>Lucero Sync is open-source software published by its contributors ("we", "us"). You can check every claim on this page in the <a href="https://github.com/lucerowb/lucero-sync">source code</a>.</p>
 
       <h2 id="collect">What we collect</h2>
-      <p><strong>Nothing.</strong> The app has no analytics, telemetry, crash reporting, advertising SDKs or remote configuration. We don't receive your photos, metadata, device identifiers, IP address or usage information, and we have no way to.</p>
+      <p><strong>Nothing.</strong> We don't run any servers, and the app has no analytics, crash reporting, advertising SDKs or remote configuration of our own. We don't receive your photos, metadata, device identifiers, IP address or usage information, and we have no way to.</p>
 
       <h2 id="on-device">Data stored on your devices</h2>
       <p>To work, the app stores the following <strong>locally on your phone</strong>, in its private storage. It never leaves the device except as described under <a href="#network">Network activity</a>.</p>
@@ -83,7 +83,11 @@
         <li><strong>Received-file index (receiver):</strong> the same kind of information for each file received, plus where it was saved.</li>
         <li><strong>The received photos and videos</strong>, in the folder shown in the app.</li>
       </ul>
-      <p>Uninstalling the app deletes its private data. Received photos in <code>Pictures/LuceroSync</code> on Android stay until you delete them.</p>
+      <p>Uninstalling the app deletes its private data. On Android, received photos in <code>Pictures/LuceroSync</code> stay until you delete them.</p>
+      <div class="callout warn">
+        <span class="mono">iPhone as receiver</span>
+        <p>On iPhone, received files are stored inside the app (Files › On My iPhone › Lucero Sync). <strong>iOS deletes them if you uninstall the app.</strong> Move them somewhere else first.</p>
+      </div>
 
       <h2 id="network">Network activity</h2>
       <p>The app only talks to devices on your <strong>local network</strong>:</p>
@@ -110,13 +114,18 @@
       </table>
 
       <h2 id="third-parties">Third parties</h2>
-      <p>The app includes open-source libraries for photo access, discovery, QR scanning and storage. On iOS and Android, QR scanning uses Google's ML Kit barcode model, which runs <strong>on the device</strong>. The app is configured to send nothing to us, and none of its features rely on a third-party service. We don't sell, share or transfer data, because we don't have any.</p>
+      <p>The app is built from open-source libraries for photo access, discovery, QR scanning and storage. None of them receive your photos. QR scanning works differently on each platform:</p>
+      <ul>
+        <li><strong>iPhone:</strong> QR codes are read with Apple's built-in Vision framework, entirely on the device. Nothing is sent anywhere.</li>
+        <li><strong>Android:</strong> QR codes are read with Google's ML Kit barcode-scanning library. The camera image is analysed <strong>on the device</strong> and isn't sent to Google. However, ML Kit sends Google diagnostic and usage data: device model and OS version, the app's package name and version, performance metrics, scanner settings, error codes and a per-installation identifier that Google says isn't intended to identify you or your device. Google sends this over HTTPS and says it doesn't share it with third parties. See <a href="https://developers.google.com/ml-kit/android-data-disclosure">Google's ML Kit data disclosure</a>. ML Kit may send this data whenever it's initialised or used, which can happen even if you never scan a code. We plan to replace ML Kit on Android with an offline scanner that sends nothing.</li>
+      </ul>
+      <p>We don't sell, share or transfer any data, because we don't receive any.</p>
 
       <h2 id="website">This website</h2>
       <p>This site is hosted on GitHub Pages and loads fonts from Google Fonts. Those providers may log technical data such as your IP address when you visit, under the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a> and the <a href="https://policies.google.com/privacy">Google privacy policy</a>. The site itself uses no cookies or analytics.</p>
 
       <h2 id="children">Children</h2>
-      <p>The app doesn't collect personal information from anyone, including children under 13.</p>
+      <p>We don't collect personal information from anyone, including children under 13. The app has no accounts and no content directed at children.</p>
 
       <h2 id="changes">Changes to this policy</h2>
       <p>If the app's data handling ever changes, we'll update this page and the "Last updated" date before releasing that change. The full history is in the <a href="https://github.com/lucerowb/lucero-sync/commits/main/docs/privacy.html">repository</a>.</p>

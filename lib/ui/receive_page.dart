@@ -21,7 +21,6 @@ class _ReceivePageState extends State<ReceivePage> {
   final _s = AppServices.instance;
   String? _ip;
   bool _allFilesAccess = true;
-  int _receivedTotal = 0;
   bool _busy = false;
 
   @override
@@ -33,12 +32,10 @@ class _ReceivePageState extends State<ReceivePage> {
   Future<void> _refresh() async {
     final ip = await localIpv4();
     final access = !Platform.isAndroid || await ReceiverStorage.hasAllFilesAccess();
-    final count = await _s.db.receivedCount();
     if (!mounted) return;
     setState(() {
       _ip = ip;
       _allFilesAccess = access;
-      _receivedTotal = count;
     });
   }
 
@@ -123,8 +120,8 @@ class _ReceivePageState extends State<ReceivePage> {
             if (running && _ip == null) const Text('Not on Wi-Fi? No local IPv4 address found.'),
             const SizedBox(height: 16),
             Text('Stored this session: ${r.storedThisSession} · skipped: ${r.skippedThisSession}'),
-            Text('Total received: $_receivedTotal'),
-            if (r.storage != null) Text('Folder: ${r.storage!.root.path}', style: Theme.of(context).textTheme.bodySmall),
+            Text('Total received: ${r.totalReceived}'),
+            if (r.storage != null) Text('Saving to ${r.storage!.displayLocation}', style: Theme.of(context).textTheme.bodySmall),
             const Divider(height: 32),
             for (final line in r.log.take(50))
               Text(line, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
