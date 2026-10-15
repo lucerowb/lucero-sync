@@ -8,6 +8,10 @@
 	<false/>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
+	<!-- Not enforced without the sandbox, but file_picker refuses to open its
+	     dialogs unless one of the user-selected entitlements is present. -->
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
 	<key>com.apple.security.network.server</key>
 	<true/>
 </dict>

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.1
+
+### New
+- **Settings › Permissions** shows whether Photos, Camera, All files access (Android) and Local Network (Apple) are allowed, with a button to grant each one or open system Settings. It refreshes when you come back from Settings.
+
+### Fixed
+- **macOS:** the Files and Photos & videos buttons, and "Change folder…", did nothing. The file picker needs a user-selected-files entitlement even outside the sandbox.
+- Picker errors now show a message instead of failing silently, and the buttons show a spinner while the system picker opens.
+- **Website:** the download section could render as one unstyled line when a cached old stylesheet was served. Stylesheets are now versioned.
+
 ## 0.2.0
 
 A redesign: Lucero Sync now shares files and text as well as backing up photos, runs on desktop, and encrypts everything.

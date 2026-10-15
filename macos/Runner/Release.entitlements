@@ -6,5 +6,9 @@
 	     go to ~/Pictures, ~/Downloads or any folder the user chooses. -->
 	<key>com.apple.security.app-sandbox</key>
 	<false/>
+	<!-- Not enforced without the sandbox, but file_picker refuses to open its
+	     dialogs unless one of the user-selected entitlements is present. -->
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
 </dict>
 </plist>

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../app/app_controller.dart';
 import '../../core/identity.dart';
@@ -13,6 +12,7 @@ import '../format.dart';
 import '../open.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
+import '../widgets/permissions_card.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key, required this.app});
@@ -50,6 +50,8 @@ class SettingsPage extends StatelessWidget {
                 ),
               ]),
             ),
+            const SectionLabel('Permissions'),
+            PermissionsCard(onChanged: app.reloadStorage),
             const SectionLabel('Receiving'),
             Card(
               child: Column(children: [
@@ -82,7 +84,6 @@ class SettingsPage extends StatelessWidget {
                 _FolderTile(app: app, backups: true),
                 const Divider(indent: 72),
                 _FolderTile(app: app, backups: false),
-                if (Platform.isAndroid) _AndroidAccessTile(app: app),
               ]),
             ),
             const SectionLabel('Paired devices'),
@@ -218,8 +219,15 @@ class _FolderTile extends StatelessWidget {
           ? PopupMenuButton<String>(
               onSelected: (v) async {
                 if (v == 'change') {
-                  final picked = await FilePicker.getDirectoryPath(dialogTitle: 'Choose a folder');
-                  if (picked != null) await app.setFolder(backups: backups, path: picked);
+                  try {
+                    final picked = await FilePicker.getDirectoryPath(dialogTitle: 'Choose a folder');
+                    if (picked != null) await app.setFolder(backups: backups, path: picked);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Couldn't open the folder picker: $e")));
+                    }
+                  }
                 } else if (v == 'reset') {
                   await app.setFolder(backups: backups, path: null);
                 } else if (v == 'open' && context.mounted) {
@@ -234,46 +242,6 @@ class _FolderTile extends StatelessWidget {
             )
           : null,
     );
-  }
-}
-
-class _AndroidAccessTile extends StatefulWidget {
-  const _AndroidAccessTile({required this.app});
-  final AppController app;
-
-  @override
-  State<_AndroidAccessTile> createState() => _AndroidAccessTileState();
-}
-
-class _AndroidAccessTileState extends State<_AndroidAccessTile> {
-  bool? granted;
-
-  @override
-  void initState() {
-    super.initState();
-    Storage.hasAllFilesAccess().then((v) => mounted ? setState(() => granted = v) : null);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (granted != false) return const SizedBox.shrink();
-    return Column(children: [
-      const Divider(indent: 72),
-      ListTile(
-        leading: const Icon(Icons.folder_special_outlined),
-        title: const Text('Save to Pictures and Downloads'),
-        subtitle: const Text('Grant "All files access" so received photos appear in your gallery.'),
-        trailing: FilledButton.tonal(
-          onPressed: () async {
-            await Permission.manageExternalStorage.request();
-            final ok = await Storage.hasAllFilesAccess();
-            if (ok) await widget.app.reloadStorage();
-            if (mounted) setState(() => granted = ok);
-          },
-          child: const Text('Grant'),
-        ),
-      ),
-    ]);
   }
 }
 

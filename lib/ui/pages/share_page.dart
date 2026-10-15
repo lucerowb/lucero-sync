@@ -32,6 +32,9 @@ class _SharePageState extends State<SharePage> {
   final _picked = <_Picked>[];
   bool _dragging = false;
 
+  /// Which picker is opening; the system sheet can take a second or two.
+  FileType? _opening;
+
   void _addPaths(Iterable<String> paths) {
     setState(() {
       for (final path in paths) {
@@ -45,8 +48,16 @@ class _SharePageState extends State<SharePage> {
   int get _totalBytes => _picked.fold(0, (a, f) => a + f.size);
 
   Future<void> _pick(FileType type) async {
-    final files = await FilePicker.pickFiles(type: type);
-    _addPaths([for (final f in files) ?f.path]);
+    if (_opening != null) return;
+    setState(() => _opening = type);
+    try {
+      final files = await FilePicker.pickFiles(type: type);
+      _addPaths([for (final f in files) ?f.path]);
+    } catch (e) {
+      _toast("Couldn't open the picker. Check Settings › Permissions. ($e)");
+    } finally {
+      if (mounted) setState(() => _opening = null);
+    }
   }
 
   Future<void> _sendTo(PeerDevice peer) async {
@@ -226,8 +237,16 @@ class _SharePageState extends State<SharePage> {
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Wrap(spacing: 8, runSpacing: 8, children: [
-              _PickChip(icon: Icons.upload_file_rounded, label: 'Files', onTap: () => _pick(FileType.any)),
-              _PickChip(icon: Icons.photo_library_outlined, label: 'Photos & videos', onTap: () => _pick(FileType.media)),
+              _PickChip(
+                  icon: Icons.upload_file_rounded,
+                  label: 'Files',
+                  busy: _opening == FileType.any,
+                  onTap: () => _pick(FileType.any)),
+              _PickChip(
+                  icon: Icons.photo_library_outlined,
+                  label: 'Photos & videos',
+                  busy: _opening == FileType.media,
+                  onTap: () => _pick(FileType.media)),
             ]),
             if (_picked.isEmpty)
               Padding(
@@ -335,14 +354,17 @@ class _SharePageState extends State<SharePage> {
 }
 
 class _PickChip extends StatelessWidget {
-  const _PickChip({required this.icon, required this.label, required this.onTap});
+  const _PickChip({required this.icon, required this.label, required this.onTap, this.busy = false});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) => ActionChip(
-        avatar: Icon(icon, size: 18),
+        avatar: busy
+            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            : Icon(icon, size: 18),
         label: Text(label),
         onPressed: onTap,
         shape: const StadiumBorder(),

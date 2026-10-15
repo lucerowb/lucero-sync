@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/site.css?v=0.2.1">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -190,6 +190,7 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
           <tr><td>"Couldn't verify the other device's identity"</td><td>The other device presented a different key than the one you paired with. This is normal if it was reinstalled: remove it and pair again. Otherwise, someone may be impersonating it.</td></tr>
           <tr><td>Device shows "Identity changed"</td><td>Same as above. It won't be trusted until you remove it and pair again.</td></tr>
           <tr><td>"No longer recognises this one"</td><td>The other device removed this pairing. Pair again.</td></tr>
+          <tr><td>Backup, photo picking or QR scanning doesn't work</td><td>Open <strong>Settings › Permissions</strong>. It shows what's allowed and has a button to fix each one.</td></tr>
           <tr><td>Nothing happens on iPhone</td><td>Allow <strong>Settings › Privacy &amp; Security › Local Network › Lucero Sync</strong>.</td></tr>
           <tr><td>Mac says the app can't be opened</td><td>Right-click › Open, or <strong>System Settings › Privacy &amp; Security › Open Anyway</strong>.</td></tr>
           <tr><td>Linux file picker doesn't open</td><td>Install <code>zenity</code> (GNOME) or <code>kdialog</code> (KDE).</td></tr>
@@ -222,6 +223,6 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
   </div>
 </footer>
 
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=0.2.1"></script>
 </body>
 </html>
