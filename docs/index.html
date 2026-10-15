@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lucero Sync — iPhone to Android photo backup, no cloud</title>
-  <meta name="description" content="Open-source app that backs up your iPhone photos and videos directly to your Android phone over Wi-Fi. No cloud, no account, no servers.">
+  <title>Lucero Sync — private file sharing & photo backup, no cloud</title>
+  <meta name="description" content="Open-source app to share files and back up photos between your iPhone, Android, Mac, Windows and Linux devices over Wi-Fi. Encrypted, no cloud, no account.">
   <meta name="theme-color" content="#100d0a">
-  <meta property="og:title" content="Lucero Sync — your photos, the short way home">
-  <meta property="og:description" content="Back up your iPhone Camera Roll straight to your Android phone over Wi-Fi. No cloud. No account. Open source.">
+  <meta property="og:title" content="Lucero Sync — your files, the short way home">
+  <meta property="og:description" content="Share files and back up photos between your own devices over Wi-Fi. Encrypted, open source, no cloud, no account.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,8 +27,8 @@
     <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
     <nav class="nav-links" id="nav-links">
       <a href="#features">Features</a>
-      <a href="#how">How it works</a>
-      <a href="#privacy">Privacy</a>
+      <a href="#security">Security</a>
+      <a href="#download">Download</a>
       <a href="guide.html">Guide</a>
       <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
     </nav>
@@ -40,11 +40,11 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <div class="eyebrow mono rise"><span class="dot"></span>Open source · iOS &amp; Android</div>
-        <h1 class="rise">Your photos, the <em>short way</em> home.</h1>
-        <p class="lede rise">Lucero Sync backs up your iPhone Camera Roll straight to your Android phone over Wi-Fi. No cloud, no account, no monthly bill. Just your network.</p>
+        <div class="eyebrow mono rise"><span class="dot"></span>Open source · iOS · Android · macOS · Windows · Linux</div>
+        <h1 class="rise">Your files, the <em>short way</em> home.</h1>
+        <p class="lede rise">Send files between your phones and computers, and back up your photo library, directly over Wi-Fi. Encrypted, with no cloud, no account and no monthly bill.</p>
         <div class="ctas rise">
-          <a class="btn btn-primary" href="https://github.com/lucerowb/lucero-sync/releases/latest">
+          <a class="btn btn-primary" href="#download">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Download
           </a>
@@ -52,13 +52,13 @@
         </div>
         <div class="meta rise">
           <span class="mono">MIT licensed</span>
-          <span class="mono">0 accounts</span>
+          <span class="mono">TLS 1.3 · pinned</span>
           <span class="mono">0 servers</span>
         </div>
       </div>
 
       <div class="stage" aria-hidden="true">
-        <div class="wifi-badge mono"><b>●</b> same Wi-Fi · port 8765</div>
+        <div class="wifi-badge mono"><b>●</b> same Wi-Fi · encrypted</div>
 
         <div class="phone ios">
           <div class="screen">
@@ -71,7 +71,7 @@
               <i class="p9"></i><i class="p4"></i><i class="p2"></i>
             </div>
           </div>
-          <span class="label mono">iPhone · sender</span>
+          <span class="label mono">iPhone</span>
         </div>
 
         <div class="phone android">
@@ -82,7 +82,7 @@
               <i class="p4"></i><i class="p5"></i><i class="p6"></i>
             </div>
           </div>
-          <span class="label mono">Android · receiver</span>
+          <span class="label mono">Android · Mac · PC</span>
         </div>
 
         <div class="arc">
@@ -104,10 +104,10 @@
 
     <div class="strip" aria-hidden="true">
       <div class="ticker">
-        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
-        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
-        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
-        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>FILES &amp; TEXT</span><span>PHOTO BACKUP</span><span>TLS 1.3 · PINNED</span><span>FIVE PLATFORMS</span><span>RESUMES MID-FILE</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>FILES &amp; TEXT</span><span>PHOTO BACKUP</span><span>TLS 1.3 · PINNED</span><span>FIVE PLATFORMS</span><span>RESUMES MID-FILE</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>FILES &amp; TEXT</span><span>PHOTO BACKUP</span><span>TLS 1.3 · PINNED</span><span>FIVE PLATFORMS</span><span>RESUMES MID-FILE</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>FILES &amp; TEXT</span><span>PHOTO BACKUP</span><span>TLS 1.3 · PINNED</span><span>FIVE PLATFORMS</span><span>RESUMES MID-FILE</span><span>OPEN SOURCE</span>
       </div>
     </div>
   </section>
@@ -117,7 +117,7 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="mono">01 — Why</span>
-        <h2>Your phones are in the same room. Your photos shouldn't take a detour.</h2>
+        <h2>Your devices are in the same room. Your files shouldn't take a detour.</h2>
       </div>
       <div class="compare">
         <div class="route bad reveal">
@@ -148,6 +148,7 @@
           <ul>
             <li>Free, with nothing to sign up for</li>
             <li>Nothing leaves your network</li>
+            <li>Encrypted with keys only your devices hold</li>
             <li>As fast as your local Wi-Fi</li>
             <li>Bit-for-bit originals, verified by SHA-256</li>
           </ul>
@@ -166,39 +167,39 @@
       <div class="sheet reveal">
         <article class="cell">
           <span class="num">FR 01A</span>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-5-8 8"/></svg></div>
-          <h3>Originals, untouched</h3>
-          <p>HEIC, RAW and ProRAW photos and full-quality video arrive exactly as they were taken, with EXIF intact and no re-compression.</p>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 18v-6m0 0-3 3m3-3 3 3"/></svg></div>
+          <h3>Share anything</h3>
+          <p>Send files of any size, or a quick link or note, to any of your devices. They get a preview of what's coming and choose whether to accept.</p>
         </article>
         <article class="cell">
           <span class="num">FR 02A</span>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5" stroke-dasharray="2 2.5"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <h3>Live Photos, in pairs</h3>
-          <p>The still and its motion clip arrive together as <code>IMG_0001.HEIC</code> + <code>IMG_0001.MOV</code>. A Live Photo only counts as synced once both halves are safe.</p>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-5-8 8"/></svg></div>
+          <h3>Photo library backup</h3>
+          <p>Back up an iPhone, Android or Mac library to another device. Originals arrive untouched (HEIC, RAW, video and Live Photo pairs), and only new photos are sent.</p>
         </article>
         <article class="cell">
           <span class="num">FR 03A</span>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/><path d="m11 14 2 2 4-4"/></svg></div>
-          <h3>Never a duplicate</h3>
-          <p>The sender keeps a ledger of what's been synced. The receiver double-checks every file by content hash and metadata before accepting it.</p>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.5"/></svg></div>
+          <h3>Encrypted &amp; pinned</h3>
+          <p>Every device has its own key. Connections use TLS 1.3, locked to the exact device you paired with, so nothing else on the network can listen in or pretend to be it.</p>
         </article>
         <article class="cell">
           <span class="num">FR 04A</span>
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></div>
           <h3>Picks up mid-file</h3>
-          <p>If the Wi-Fi drops or the app closes, the next sync continues from the exact byte it reached, even halfway through a 4 GB video.</p>
+          <p>If the Wi-Fi drops or the app closes, the next attempt continues from the exact byte it reached, even halfway through a 4 GB video. Every file is checked before it's saved.</p>
         </article>
         <article class="cell">
           <span class="num">FR 05A</span>
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg></div>
-          <h3>Pair in one scan</h3>
-          <p>The receiver shows a QR code. Scan it once and the phones remember each other. Bonjour discovery finds the receiver again if its IP address changes.</p>
+          <h3>Pair in seconds</h3>
+          <p>Tap a nearby device and check that both screens show the same six digits, or scan a one-time QR code. Once paired, both devices can send to each other.</p>
         </article>
         <article class="cell">
           <span class="num">FR 06A</span>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></div>
-          <h3>Any direction</h3>
-          <p>iPhone to Android is the main use, but either phone can send or receive. You can even back one phone up to several others.</p>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="11" rx="1"/></svg></div>
+          <h3>Every platform</h3>
+          <p>iPhone, iPad, Android, Mac, Windows and Linux. On a computer, drag files onto the window and choose where received files and backups are saved.</p>
         </article>
       </div>
     </div>
@@ -213,22 +214,26 @@
       </div>
       <div class="screens reveal">
         <figure>
-          <img src="assets/screens/receive.png" width="644" height="1400" loading="lazy" alt="Receive screen showing the pairing QR code, address, PIN and a log of stored photos">
-          <figcaption class="mono">Receive · pair &amp; log</figcaption>
+          <img src="assets/screens/share.png" width="644" height="1400" loading="lazy" alt="Share screen listing paired devices and what to send">
+          <figcaption class="mono">Share · your devices</figcaption>
         </figure>
         <figure>
-          <img src="assets/screens/discover.png" width="644" height="1400" loading="lazy" alt="Send screen listing receivers found on the Wi-Fi network">
-          <figcaption class="mono">Send · found on Wi-Fi</figcaption>
+          <img src="assets/screens/pair.png" width="644" height="1400" loading="lazy" alt="Pairing request showing a six-digit code to compare">
+          <figcaption class="mono">Pair · compare the code</figcaption>
         </figure>
         <figure>
-          <img src="assets/screens/transfer.png" width="644" height="1400" loading="lazy" alt="Send screen mid-transfer with a progress bar for the current photo">
-          <figcaption class="mono">Send · transferring</figcaption>
+          <img src="assets/screens/offer.png" width="644" height="1400" loading="lazy" alt="Incoming files prompt with Accept and Decline">
+          <figcaption class="mono">Receive · you decide</figcaption>
         </figure>
         <figure>
-          <img src="assets/screens/done.png" width="644" height="1400" loading="lazy" alt="Send screen showing the library is up to date, with only the three new photos sent">
-          <figcaption class="mono">Send · only what's new</figcaption>
+          <img src="assets/screens/backup.png" width="644" height="1400" loading="lazy" alt="Photo backup showing the library is up to date">
+          <figcaption class="mono">Backup · only what's new</figcaption>
         </figure>
       </div>
+      <figure class="wide-shot reveal">
+        <img src="assets/screens/tablet.png" width="1050" height="1400" loading="lazy" alt="Tablet and desktop layout with a sidebar, the composer and the device list side by side">
+        <figcaption class="mono">Tablets &amp; computers · sidebar layout</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -237,39 +242,55 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="mono">04 — Develop</span>
-        <h2>Three steps, then just tap Sync.</h2>
+        <h2>Three steps, then just tap Send.</h2>
       </div>
       <div class="steps">
         <div class="step reveal">
-          <h3>Start the receiver</h3>
-          <p>On Android, open the <strong>Receive</strong> tab and tap Start. It shows a QR code and a 6-digit PIN.</p>
+          <h3>Open it on both</h3>
+          <p>Install Lucero Sync on two devices on the same Wi-Fi. They find each other automatically.</p>
         </div>
         <div class="step reveal">
-          <h3>Pair your iPhone</h3>
-          <p>On iPhone, open <strong>Send</strong> and scan the code. The phones remember each other from then on.</p>
+          <h3>Pair once</h3>
+          <p>Tap the other device and check that both screens show the same code, or scan its QR code. That's the only setup.</p>
         </div>
         <div class="step reveal">
-          <h3>Sync now</h3>
-          <p>Lucero compares your library with what's already been backed up and sends only what's new, every time.</p>
+          <h3>Share or back up</h3>
+          <p>Pick files and tap a device, or choose where your photo library backs up and tap <strong>Back up now</strong>.</p>
         </div>
       </div>
       <p class="reveal" style="margin-top:44px"><a class="btn btn-ghost" href="guide.html">Full installation &amp; setup guide →</a></p>
     </div>
   </section>
 
-  <!-- PRIVACY -->
-  <section id="privacy">
+  <!-- SECURITY / PRIVACY -->
+  <section id="security">
     <div class="wrap">
       <div class="manifesto reveal">
         <span class="mono">05 — Safelight</span>
-        <blockquote style="margin-top:18px">We built a photo app that <span>can't see your photos</span>, because they never come near us.</blockquote>
+        <blockquote style="margin-top:18px">We built a sharing app that <span>can't see your files</span>, because they never come near us.</blockquote>
         <div class="facts">
+          <span class="fact"><b>TLS 1.3</b> pinned to each device</span>
+          <span class="fact"><b>P-256</b> key per device</span>
+          <span class="fact"><b>SHA-256</b> on every file</span>
           <span class="fact"><b>0</b> accounts</span>
           <span class="fact"><b>0</b> servers</span>
-          <span class="fact"><b>LAN</b> only</span>
           <span class="fact"><b>MIT</b> source you can read</span>
         </div>
-        <p style="margin-top:36px"><a href="privacy.html">Read the privacy policy →</a></p>
+        <div class="sec-grid">
+          <div>
+            <h3>Pairing that can't be faked</h3>
+            <p>Both screens show a six-digit code built with a commitment protocol (the method behind Bluetooth's numeric comparison). Someone intercepting the connection can't make the codes match, and you confirm on both devices.</p>
+          </div>
+          <div>
+            <h3>Locked to the right device</h3>
+            <p>After pairing, each device only talks to the exact certificate it saw. A spoofed name or address on your network gets nowhere, and a device whose identity changes is flagged rather than trusted.</p>
+          </div>
+          <div>
+            <h3>Nothing to log in to</h3>
+            <p>There are no accounts, servers or relays. Your files go directly from one of your devices to another on your own network.</p>
+          </div>
+        </div>
+        <p style="margin-top:32px"><a href="privacy.html">Privacy policy →</a> &nbsp;·&nbsp; <a href="https://github.com/lucerowb/lucero-sync/blob/main/ARCHITECTURE.md#security-model">Security design →</a></p>
       </div>
     </div>
   </section>
@@ -287,38 +308,58 @@
           <p>There's no catch. It's an MIT-licensed open-source project with no servers to pay for, so there's nothing to charge for. If you'd like to give something back, star the repo or contribute.</p>
         </details>
         <details>
-          <summary>Why isn't it on the App Store or Play Store?</summary>
-          <p>Play Store policy restricts the "all files access" permission that lets backups land in your Gallery, and App Store distribution needs a paid developer account. For now, Android installs from a downloadable APK, and iPhone installs by building the app with a free Apple ID or sideloading it with AltStore or SideStore. The <a href="guide.html">guide</a> walks through both.</p>
-        </details>
-        <details>
-          <summary>Do both phones need to stay open during a sync?</summary>
-          <p>Yes, for now. iOS doesn't let apps run long uploads in the background, so keep Lucero open and the phone plugged in. The app keeps the screen awake for you. Later syncs only send new photos, so they're quick.</p>
-        </details>
-        <details>
-          <summary>What if I use iCloud "Optimize iPhone Storage"?</summary>
-          <p>That works. Lucero asks iOS for the full-quality original, and iOS downloads it from iCloud first if needed, so the iPhone needs an internet connection for those photos.</p>
+          <summary>Which devices can talk to each other?</summary>
+          <p>Any combination of iPhone, iPad, Android, Mac, Windows and Linux. Every device can send and receive files and text. Photo library backup can run <em>from</em> an iPhone, Android or Mac <em>to</em> any of them, so a Windows PC or Linux box makes a great backup destination.</p>
         </details>
         <details>
           <summary>Is the transfer encrypted?</summary>
-          <p>Not yet. Transfers use plain HTTP on your local network, and the receiver only accepts devices that know its PIN. It's built for your home Wi-Fi; avoid using it on public networks. Encrypted transfers are on the roadmap. See the <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a>.</p>
+          <p>Yes. Since v0.2, every connection uses TLS 1.3 pinned to the certificate of the device you paired with, and every file is verified with SHA-256 before it's saved. The <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a> lists exactly what it protects against.</p>
         </details>
         <details>
-          <summary>Will deleting a photo on Android make it re-sync?</summary>
-          <p>Yes, by design. If a backed-up file is missing from the receiver's folder, the next sync restores it. Photos you delete on the iPhone stay in the backup.</p>
+          <summary>Why isn't it on the App Store or Play Store?</summary>
+          <p>App Store distribution needs a paid developer account, and Play Store policy restricts the "all files access" permission that lets backups land in your gallery. Android installs from an APK. iPhones use AltStore, SideStore or a free Apple ID build. Computers download a zip. The <a href="guide.html">guide</a> walks through each.</p>
+        </details>
+        <details>
+          <summary>Do both devices need to stay open?</summary>
+          <p>Yes, for now. iOS doesn't let apps run long uploads in the background, so keep Lucero Sync open and the phone plugged in for big backups; the app keeps the screen awake. Computers can simply leave it running.</p>
+        </details>
+        <details>
+          <summary>What if devices don't find each other?</summary>
+          <p>Some networks block discovery (guest Wi-Fi, "client isolation", VPNs, Windows "Public" networks). You can always pair with a QR code or by entering the other device's IP address. <strong>Settings › Connection help</strong> shows both addresses and fixes for each platform.</p>
+        </details>
+        <details>
+          <summary>Will deleting a photo on the backup device make it re-sync?</summary>
+          <p>Yes, by design. If a backed-up file is missing from the destination folder, the next backup restores it. Photos you delete on your phone stay in the backup.</p>
         </details>
       </div>
     </div>
   </section>
 
   <!-- DOWNLOAD -->
-  <section class="download">
+  <section class="download" id="download">
     <div class="wrap reveal">
       <span class="mono">07 — Print</span>
-      <h2 style="margin-top:18px">Bring your photos home.</h2>
-      <p>Get the Android APK and the iPhone build from the latest release, or build both from source in a few minutes.</p>
-      <div class="ctas">
-        <a class="btn btn-primary" href="https://github.com/lucerowb/lucero-sync/releases/latest">Download latest release</a>
-        <a class="btn btn-ghost" href="https://github.com/lucerowb/lucero-sync">View source on GitHub</a>
+      <h2 style="margin-top:18px">Bring your files home.</h2>
+      <p>Free and open source on every platform. Install it on at least two devices to get started.</p>
+      <div class="platforms">
+        <a class="platform" href="https://github.com/lucerowb/lucero-sync/releases/latest/download/lucero-sync.apk">
+          <span class="mono">Android</span><strong>Download APK</strong><small>Android 7+</small>
+        </a>
+        <a class="platform" href="guide.html#iphone">
+          <span class="mono">iPhone &amp; iPad</span><strong>AltStore / SideStore</strong><small>iOS 15+ · or build from source</small>
+        </a>
+        <a class="platform" href="https://github.com/lucerowb/lucero-sync/releases/latest/download/lucero-sync-macos.zip">
+          <span class="mono">macOS</span><strong>Download for Mac</strong><small>macOS 12+ · Apple Silicon &amp; Intel</small>
+        </a>
+        <a class="platform" href="https://github.com/lucerowb/lucero-sync/releases/latest/download/lucero-sync-windows-x64.zip">
+          <span class="mono">Windows</span><strong>Download for Windows</strong><small>Windows 10/11 · x64</small>
+        </a>
+        <a class="platform" href="https://github.com/lucerowb/lucero-sync/releases/latest/download/lucero-sync-linux-x64.tar.gz">
+          <span class="mono">Linux</span><strong>Download for Linux</strong><small>x64 · GTK 3</small>
+        </a>
+        <a class="platform ghost" href="https://github.com/lucerowb/lucero-sync">
+          <span class="mono">Source</span><strong>View on GitHub</strong><small>MIT licence</small>
+        </a>
       </div>
     </div>
   </section>

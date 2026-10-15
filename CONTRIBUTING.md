@@ -10,7 +10,11 @@ Thanks for helping out. This guide covers how to set up the project, what's expe
 
 ## Development setup
 
-1. Install [Flutter](https://docs.flutter.dev/get-started/install) (3.38+), Xcode + CocoaPods (iOS), and Android Studio (Android).
+1. Install [Flutter](https://docs.flutter.dev/get-started/install) (3.38+) and the toolchain for each platform you work on:
+   - **iOS / macOS:** Xcode + CocoaPods
+   - **Android:** Android Studio
+   - **Windows:** Visual Studio 2022 with "Desktop development with C++"
+   - **Linux:** `sudo apt install clang cmake ninja-build pkg-config libgtk-3-dev zenity`
 2. Fetch dependencies:
    ```bash
    flutter pub get
@@ -25,7 +29,7 @@ Thanks for helping out. This guide covers how to set up the project, what's expe
    flutter run
    ```
 
-Testing a sync needs two real devices on the same Wi-Fi. Simulators and emulators can't do mDNS or local networking reliably.
+The quickest two-device setup is the desktop app plus a phone, or two instances: a desktop app and an iOS simulator on the same Mac share the network, and the second instance automatically picks the next free port. `tool/demo_peer_test.dart` is a scripted peer that pairs with a running app and offers it files (run it with `LUCERO_TARGET_PORT=8765 flutter test tool/demo_peer_test.dart`).
 
 ## Before you open a pull request
 
@@ -37,9 +41,11 @@ flutter analyze
 flutter test
 ```
 
-Both must pass, and CI runs them on every pull request. Add unit tests in `test/` for anything that doesn't need a device, such as models, the protocol, filename handling or the dedup logic.
+Both must pass. CI also builds Android, iOS, macOS, Windows and Linux on every pull request. `test/protocol_test.dart` runs two complete devices against each other over real TLS on localhost; add a case there for any protocol or security change.
 
-If you changed the wire protocol (`lib/core/protocol.dart`), keep it backward compatible or bump `Protocol.version`, and update [ARCHITECTURE.md](ARCHITECTURE.md).
+**Security-sensitive code** (`lib/security/`, `lib/net/`, `lib/storage/storage.dart`) needs a test showing the attack it prevents, like the existing impostor and interception tests.
+
+If you changed the wire protocol (`lib/core/protocol.dart`), keep it backward compatible or bump `Protocol.version`, and update [ARCHITECTURE.md](ARCHITECTURE.md). Keep `appVersion` in `lib/core/version.dart` in sync with `pubspec.yaml`.
 
 ## Project layout
 
@@ -80,4 +86,4 @@ Without these, releases are signed with a throwaway debug key. Users then can't 
    ```bash
    git tag v0.2.0 && git push origin v0.2.0
    ```
-3. The **Release** workflow builds the APK and an unsigned IPA, then publishes a GitHub release.
+3. The **Release** workflow builds the Android APK, an unsigned iOS IPA with its AltStore/SideStore source, a macOS app (ad-hoc signed), and Windows and Linux bundles, then publishes a GitHub release. Add a section to [CHANGELOG.md](CHANGELOG.md) first.

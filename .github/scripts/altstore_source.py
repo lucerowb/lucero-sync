@@ -21,12 +21,12 @@ with open(info_plist, "rb") as f:
 raw = f"https://raw.githubusercontent.com/{repo}/main/docs/assets"
 privacy = {k: v for k, v in sorted(info.items()) if k.startswith("NS") and k.endswith("UsageDescription")}
 
-screens = ["receive", "discover", "transfer", "done"]
+screens = ["share", "pair", "offer", "backup", "activity"]
 
 source = {
     "name": "Lucero Sync",
-    "subtitle": "iPhone to Android photo backup over Wi-Fi",
-    "description": "Official source for Lucero Sync, an open-source app that backs up your photos directly to another phone on the same Wi-Fi. No cloud, no account.",
+    "subtitle": "Private file sharing and photo backup over Wi-Fi",
+    "description": "Official source for Lucero Sync, an open-source app for sharing files and backing up photos directly between your own devices on the same Wi-Fi. No cloud, no account.",
     "iconURL": f"{raw}/app-icon.png",
     "website": "https://lucerosync.lucerowb.com",
     "tintColor": "#FFA24A",
@@ -36,11 +36,12 @@ source = {
             "name": "Lucero Sync",
             "bundleIdentifier": info["CFBundleIdentifier"],
             "developerName": "lucerowb",
-            "subtitle": "Back up photos to your other phone, no cloud.",
+            "subtitle": "Share files and back up photos between your devices, no cloud.",
             "localizedDescription": (
-                "Lucero Sync copies your Camera Roll (originals, videos and Live Photos) "
-                "straight to another phone on your Wi-Fi. It never duplicates a photo, resumes "
-                "interrupted transfers mid-file, and needs no account or server.\n\n"
+                "Lucero Sync sends files and text between your iPhone, Android, Mac, Windows and "
+                "Linux devices over your Wi-Fi, and backs up your photo library (originals, videos "
+                "and Live Photos) to another device. Transfers are encrypted with pinned certificates, "
+                "never duplicates a photo, resumes mid-file, and needs no account or server.\n\n"
                 "Open source (MIT): https://github.com/" + repo
             ),
             "iconURL": f"{raw}/app-icon.png",

@@ -2,81 +2,146 @@ import 'dart:convert';
 
 import 'protocol.dart';
 
-/// A paired receiver, as stored on the sender.
-class PeerInfo {
-  const PeerInfo({
+/// A device we've paired with. Pairing is mutual: each side can send to the
+/// other, pins the other's certificate fingerprint, and holds a token for it.
+class PeerDevice {
+  const PeerDevice({
     required this.deviceId,
     required this.name,
+    required this.platform,
+    required this.fingerprint,
     required this.host,
     required this.port,
-    required this.token,
+    required this.tokenOut,
+    required this.tokenInHash,
+    this.autoAccept = false,
   });
 
   final String deviceId;
   final String name;
+  final String platform;
+
+  /// SHA-256 of the peer's certificate; connections are pinned to it.
+  final String fingerprint;
   final String host;
   final int port;
-  final String token;
 
-  Uri uri(String path) => Uri(scheme: 'http', host: host, port: port, path: path);
+  /// Bearer token we present when calling the peer.
+  final String tokenOut;
 
-  PeerInfo copyWith({String? host, int? port, String? name}) => PeerInfo(
+  /// Hash of the token the peer presents when calling us.
+  final String tokenInHash;
+
+  /// Accept files from this device without asking.
+  final bool autoAccept;
+
+  Uri uri(String path) => Uri(scheme: 'https', host: host, port: port, path: path);
+
+  PeerDevice copyWith({String? name, String? host, int? port, bool? autoAccept, String? platform}) => PeerDevice(
         deviceId: deviceId,
         name: name ?? this.name,
+        platform: platform ?? this.platform,
+        fingerprint: fingerprint,
         host: host ?? this.host,
         port: port ?? this.port,
-        token: token,
+        tokenOut: tokenOut,
+        tokenInHash: tokenInHash,
+        autoAccept: autoAccept ?? this.autoAccept,
       );
 
   Map<String, Object?> toRow() => {
         'device_id': deviceId,
         'name': name,
+        'platform': platform,
+        'fingerprint': fingerprint,
         'host': host,
         'port': port,
-        'token': token,
+        'token_out': tokenOut,
+        'token_in_hash': tokenInHash,
+        'auto_accept': autoAccept ? 1 : 0,
         'last_seen': DateTime.now().millisecondsSinceEpoch,
       };
 
-  factory PeerInfo.fromRow(Map<String, Object?> r) => PeerInfo(
+  factory PeerDevice.fromRow(Map<String, Object?> r) => PeerDevice(
         deviceId: r['device_id'] as String,
         name: r['name'] as String,
+        platform: r['platform'] as String,
+        fingerprint: r['fingerprint'] as String,
         host: r['host'] as String,
         port: r['port'] as int,
-        token: r['token'] as String,
+        tokenOut: r['token_out'] as String,
+        tokenInHash: r['token_in_hash'] as String,
+        autoAccept: (r['auto_accept'] as int) == 1,
       );
 }
 
-/// QR code contents shown by the receiver.
+/// A device seen on the network via mDNS (paired or not).
+class NearbyDevice {
+  const NearbyDevice({
+    required this.deviceId,
+    required this.name,
+    required this.platform,
+    required this.fingerprint,
+    required this.host,
+    required this.port,
+  });
+
+  final String deviceId;
+  final String name;
+  final String platform;
+  final String fingerprint;
+  final String host;
+  final int port;
+}
+
+/// Contents of the pairing QR code.
 class PairingPayload {
+  const PairingPayload({
+    required this.deviceId,
+    required this.name,
+    required this.platform,
+    required this.host,
+    required this.port,
+    required this.fingerprint,
+    required this.secret,
+  });
+
   static const _app = 'lucerosync';
 
-  static String encode({
-    required String deviceId,
-    required String name,
-    required String host,
-    required int port,
-    required String pin,
-  }) =>
-      jsonEncode({
+  final String deviceId;
+  final String name;
+  final String platform;
+  final String host;
+  final int port;
+  final String fingerprint;
+
+  /// One-time secret proving the scanner saw this screen.
+  final String secret;
+
+  String encode() => jsonEncode({
         'app': _app,
         'v': Protocol.version,
         'id': deviceId,
         'name': name,
+        'os': platform,
         'host': host,
         'port': port,
-        'pin': pin,
+        'fp': fingerprint,
+        's': secret,
       });
 
-  static PeerInfo? decode(String raw) {
+  static PairingPayload? decode(String raw) {
     try {
       final m = jsonDecode(raw) as Map<String, dynamic>;
-      if (m['app'] != _app) return null;
-      return PeerInfo(
+      if (m['app'] != _app || m['v'] != Protocol.version) return null;
+      return PairingPayload(
         deviceId: m['id'] as String,
         name: m['name'] as String,
+        platform: m['os'] as String,
         host: m['host'] as String,
         port: m['port'] as int,
-        token: m['pin'] as String,
+        fingerprint: m['fp'] as String,
+        secret: m['s'] as String,
       );
     } catch (_) {
       return null;
@@ -85,8 +150,7 @@ class PairingPayload {
 }
 
 /// Identity of one file on the wire. `sha256` is the primary key; `metaKey`
-/// (filename + creation date + size) is a secondary key so the receiver can
-/// also catch the same photo arriving from a different sender/library.
+/// (filename + creation date + size) is a secondary dedup key for backups.
 class FileDescriptor {
   const FileDescriptor({
     required this.sha256,
@@ -127,24 +191,26 @@ class FileCheck {
 }
 
 class UploadResult {
-  const UploadResult(this.httpStatus, this.status, {this.offset = 0, this.message});
+  const UploadResult(this.httpStatus, this.status, {this.offset = 0, this.message, this.path});
 
   final int httpStatus;
   final String status;
   final int offset;
   final String? message;
+  final String? path;
 
   factory UploadResult.fromJson(int httpStatus, Map<String, dynamic> m) => UploadResult(
         httpStatus,
         (m['status'] as String?) ?? 'unknown',
         offset: (m['offset'] as int?) ?? 0,
         message: m['message'] as String?,
+        path: m['path'] as String?,
       );
 }
 
 enum QueueStatus { pending, uploading, failed }
 
-/// One row of the sender's persistent sync queue.
+/// One row of the sender's persistent backup queue.
 class QueueItem {
   const QueueItem({
     required this.peerId,
@@ -181,7 +247,7 @@ class QueueItem {
       );
 }
 
-/// A file the receiver has committed to disk.
+/// A backup file the receiver has committed to disk.
 class ReceivedFile {
   const ReceivedFile({
     required this.sha256,
@@ -220,5 +286,91 @@ class ReceivedFile {
         size: r['size'] as int,
         createdAtMs: r['created_at'] as int,
         senderId: r['sender_id'] as String,
+      );
+}
+
+/// A file inside a share offer.
+class ShareFile {
+  const ShareFile({required this.id, required this.name, required this.size, required this.sha256});
+
+  final String id;
+  final String name;
+  final int size;
+  final String sha256;
+
+  Map<String, Object?> toJson() => {'id': id, 'name': name, 'size': size, 'sha256': sha256};
+
+  factory ShareFile.fromJson(Map<String, dynamic> m) => ShareFile(
+        id: m['id'] as String,
+        name: m['name'] as String,
+        size: m['size'] as int,
+        sha256: (m['sha256'] as String).toLowerCase(),
+      );
+}
+
+enum TransferDirection { incoming, outgoing }
+
+enum TransferKind { files, text, backup }
+
+enum TransferStatus { done, failed, declined, cancelled }
+
+/// One line in the Activity history.
+class TransferRecord {
+  const TransferRecord({
+    required this.id,
+    required this.direction,
+    required this.kind,
+    required this.peerId,
+    required this.peerName,
+    required this.title,
+    required this.status,
+    required this.createdAtMs,
+    this.detail,
+    this.size = 0,
+    this.paths = const [],
+  });
+
+  final String id;
+  final TransferDirection direction;
+  final TransferKind kind;
+  final String peerId;
+  final String peerName;
+  final String title;
+
+  /// Received text, or an error message.
+  final String? detail;
+  final int size;
+  final TransferStatus status;
+  final int createdAtMs;
+
+  /// Absolute paths of received files (incoming file transfers only).
+  final List<String> paths;
+
+  Map<String, Object?> toRow() => {
+        'id': id,
+        'direction': direction.name,
+        'kind': kind.name,
+        'peer_id': peerId,
+        'peer_name': peerName,
+        'title': title,
+        'detail': detail,
+        'size': size,
+        'status': status.name,
+        'paths': jsonEncode(paths),
+        'created_at': createdAtMs,
+      };
+
+  factory TransferRecord.fromRow(Map<String, Object?> r) => TransferRecord(
+        id: r['id'] as String,
+        direction: TransferDirection.values.byName(r['direction'] as String),
+        kind: TransferKind.values.byName(r['kind'] as String),
+        peerId: r['peer_id'] as String,
+        peerName: r['peer_name'] as String,
+        title: r['title'] as String,
+        detail: r['detail'] as String?,
+        size: r['size'] as int,
+        status: TransferStatus.values.byName(r['status'] as String),
+        paths: (jsonDecode((r['paths'] as String?) ?? '[]') as List).cast<String>(),
+        createdAtMs: r['created_at'] as int,
       );
 }

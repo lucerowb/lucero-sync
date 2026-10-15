@@ -36,7 +36,7 @@
     <div class="wrap">
       <span class="mono">Legal</span>
       <h1>Privacy policy</h1>
-      <p>In one sentence: Lucero Sync never sends your photos or personal data to us, and your photos only move between your own devices. The one exception is limited diagnostic data that Google's QR-scanning library sends to Google on Android, explained below.</p>
+      <p>In one sentence: Lucero Sync never sends your files or personal data to us; they only move, encrypted, between your own devices. The one exception is limited diagnostic data that Google's QR-scanning library sends to Google on Android, explained below.</p>
       <p class="mono updated">Last updated: 15 October 2026</p>
     </div>
   </div>
@@ -66,7 +66,8 @@
           <tr><td><strong>Analytics, crash reporting, ads</strong></td><td>None of our own. On Android only, a Google library bundled for QR scanning (ML Kit) sends Google diagnostic data; <a href="#third-parties">details</a>.</td></tr>
           <tr><td><strong>Accounts</strong></td><td>None; there's nothing to sign up for</td></tr>
           <tr><td><strong>Servers operated by us</strong></td><td>None</td></tr>
-          <tr><td><strong>Where your photos go</strong></td><td>Only to devices you pair, on your local network</td></tr>
+          <tr><td><strong>Where your files go</strong></td><td>Only to devices you pair, directly over your local network</td></tr>
+          <tr><td><strong>Encryption in transit</strong></td><td>TLS 1.3, pinned to each paired device's certificate</td></tr>
         </tbody>
       </table>
       <p>Lucero Sync is open-source software published by its contributors ("we", "us"). You can check every claim on this page in the <a href="https://github.com/lucerowb/lucero-sync">source code</a>.</p>
@@ -75,15 +76,17 @@
       <p><strong>Nothing.</strong> We don't run any servers, and the app has no analytics, crash reporting, advertising SDKs or remote configuration of our own. We don't receive your photos, metadata, device identifiers, IP address or usage information, and we have no way to.</p>
 
       <h2 id="on-device">Data stored on your devices</h2>
-      <p>To work, the app stores the following <strong>locally on your phone</strong>, in its private storage. It never leaves the device except as described under <a href="#network">Network activity</a>.</p>
+      <p>To work, the app stores the following <strong>locally on each device</strong>, in its private app-data folder. It never leaves the device except as described under <a href="#network">Network activity</a>.</p>
       <ul>
-        <li><strong>A random device ID, a display name (such as "iPhone-3fa2") and a 6-digit PIN</strong>, generated on first launch. They identify the device to phones you pair with.</li>
-        <li><strong>Paired receivers:</strong> their names, local IP addresses, ports and PINs.</li>
-        <li><strong>Sync history (sender):</strong> for each photo already backed up, its library identifier, filename, size, creation date and a SHA-256 fingerprint of its contents, so it's never sent twice.</li>
-        <li><strong>Received-file index (receiver):</strong> the same kind of information for each file received, plus where it was saved.</li>
-        <li><strong>The received photos and videos</strong>, in the folder shown in the app.</li>
+        <li><strong>Device identity:</strong> a random device ID, a display name and a cryptographic key pair with its certificate. All are generated on first launch, and the private key never leaves the device. The default name comes from the operating system (for example your computer's name or phone model), and you can change it in Settings.</li>
+        <li><strong>Paired devices:</strong> their names, platforms, certificate fingerprints, last local IP address and port, the access token this device uses with them, and a <em>hash</em> of the token they use with this device.</li>
+        <li><strong>Backup history (sending device):</strong> for each photo already backed up, its library identifier, filename, size, creation date and a SHA-256 fingerprint of its contents, so it's never sent twice.</li>
+        <li><strong>Received-backup index (receiving device):</strong> the same kind of information for each backup file received, plus where it was saved.</li>
+        <li><strong>Activity history:</strong> file names, sizes, the other device's name, and the <strong>full text</strong> of text messages you sent or received. You can clear it under Activity.</li>
+        <li><strong>Settings</strong>, such as the folders you chose and per-device auto-accept.</li>
+        <li><strong>The files and photos you receive</strong>, in the folders shown in Settings › Storage.</li>
       </ul>
-      <p>Uninstalling the app deletes its private data. On Android, received photos in <code>Pictures/LuceroSync</code> stay until you delete them.</p>
+      <p>Uninstalling the app deletes its private data. On Android and desktop computers, received files and backups in your Pictures and Downloads folders stay until you delete them.</p>
       <div class="callout warn">
         <span class="mono">iPhone as receiver</span>
         <p>On iPhone, received files are stored inside the app (Files › On My iPhone › Lucero Sync). <strong>iOS deletes them if you uninstall the app.</strong> Move them somewhere else first.</p>
@@ -92,12 +95,13 @@
       <h2 id="network">Network activity</h2>
       <p>The app only talks to devices on your <strong>local network</strong>:</p>
       <ul>
-        <li><strong>Discovery:</strong> the receiver announces itself with Bonjour/mDNS, which includes its display name, device ID and port. Other devices on the same network can see this announcement. The PIN isn't included.</li>
-        <li><strong>Transfer:</strong> the sender sends photos, filenames, sizes, creation dates and content fingerprints directly to the paired receiver over HTTP, authenticated with the receiver's PIN.</li>
+        <li><strong>Discovery:</strong> while receiving is on, the device announces itself with Bonjour/mDNS. The announcement includes its display name, device ID, platform (such as "android"), certificate fingerprint and port. <strong>Anyone on the same network can see this announcement.</strong> It contains no keys, tokens or files.</li>
+        <li><strong>Pairing:</strong> the two devices exchange names, platforms, fingerprints, ports and random access tokens over an encrypted connection.</li>
+        <li><strong>Transfers:</strong> files, file names, sizes, creation dates, content fingerprints and text go directly to the paired device over <strong>TLS 1.3</strong>. Each device accepts only the exact certificate it paired with, so others on the network can't read or alter them.</li>
       </ul>
-      <div class="callout warn">
-        <span class="mono">Unencrypted on your LAN</span>
-        <p>Transfers aren't encrypted yet. Someone with access to your Wi-Fi who is actively capturing traffic could see photos in transit. Use the app on networks you trust, such as your home Wi-Fi. See the <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a>.</p>
+      <div class="callout">
+        <span class="mono">What others on your network can still see</span>
+        <p>Your device names from discovery, and that two devices are talking to each other and roughly how much data they exchange. They can't see the contents. Use a name that doesn't reveal more than you'd like on shared networks.</p>
       </div>
       <p>On iPhone, if a photo's full-quality original is stored only in iCloud, <strong>iOS itself</strong> downloads it from Apple when the app requests it. This is handled by Apple under <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>; the app doesn't talk to iCloud directly.</p>
 
@@ -105,18 +109,21 @@
       <table>
         <thead><tr><th>Permission</th><th>Used for</th></tr></thead>
         <tbody>
-          <tr><td>Photos / media library</td><td>Reading the photos and videos you choose to back up (sender).</td></tr>
-          <tr><td>Local network (iOS)</td><td>Finding and connecting to your other devices.</td></tr>
-          <tr><td>Camera</td><td>Scanning the pairing QR code. The image is processed on the device and never saved or sent.</td></tr>
-          <tr><td>All files access (Android)</td><td>Saving received photos to <code>Pictures/LuceroSync</code> so they show up in your gallery.</td></tr>
-          <tr><td>Wi-Fi, network state, multicast, wake lock</td><td>Running the local server and discovery, and keeping the device awake during a sync.</td></tr>
+          <tr><td>Photos / media library (iOS, Android, macOS)</td><td>Reading your library to back it up, and picking photos to send.</td></tr>
+          <tr><td>Local network (iOS, macOS)</td><td>Finding and connecting to your other devices.</td></tr>
+          <tr><td>Camera (iOS, Android, macOS)</td><td>Scanning a pairing QR code. The image is processed on the device and never saved or sent.</td></tr>
+          <tr><td>All files access (Android)</td><td>Saving backups to <code>Pictures/LuceroSync</code> and received files to <code>Download/LuceroSync</code> so your gallery and file manager can see them.</td></tr>
+          <tr><td>Wi-Fi, network state, multicast, wake lock</td><td>Running the local server and discovery, and keeping the device awake during transfers.</td></tr>
+          <tr><td>Network access (Windows/Linux firewall)</td><td>Letting your other devices connect to this computer on your private network.</td></tr>
+          <tr><td>Files you pick or drop</td><td>Only the files you choose to send are read.</td></tr>
         </tbody>
       </table>
 
       <h2 id="third-parties">Third parties</h2>
       <p>The app is built from open-source libraries for photo access, discovery, QR scanning and storage. None of them receive your photos. QR scanning works differently on each platform:</p>
       <ul>
-        <li><strong>iPhone:</strong> QR codes are read with Apple's built-in Vision framework, entirely on the device. Nothing is sent anywhere.</li>
+        <li><strong>iPhone, iPad and Mac:</strong> QR codes are read with Apple's built-in Vision framework, entirely on the device. Nothing is sent anywhere.</li>
+        <li><strong>Windows and Linux:</strong> no third-party service is contacted.</li>
         <li><strong>Android:</strong> QR codes are read with Google's ML Kit barcode-scanning library. The camera image is analysed <strong>on the device</strong> and isn't sent to Google. However, ML Kit sends Google diagnostic and usage data: device model and OS version, the app's package name and version, performance metrics, scanner settings, error codes and a per-installation identifier that Google says isn't intended to identify you or your device. Google sends this over HTTPS and says it doesn't share it with third parties. See <a href="https://developers.google.com/ml-kit/android-data-disclosure">Google's ML Kit data disclosure</a>. ML Kit may send this data whenever it's initialised or used, which can happen even if you never scan a code. We plan to replace ML Kit on Android with an offline scanner that sends nothing.</li>
       </ul>
       <p>We don't sell, share or transfer any data, because we don't receive any.</p>

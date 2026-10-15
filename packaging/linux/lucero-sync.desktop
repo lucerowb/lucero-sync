@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Lucero Sync
+Comment=Share files and back up photos between your devices over Wi-Fi
+Exec=lucero_sync
+Icon=lucero-sync
+Terminal=false
+Categories=Network;FileTransfer;Utility;
+Keywords=sync;share;backup;photos;transfer;
+StartupWMClass=com.lucero.lucero_sync

@@ -1,10 +1,10 @@
 name: lucero_sync
 description: Local-network photo backup between iOS and Android. No cloud.
 publish_to: none
-version: 0.1.1+2
+version: 0.2.0+3
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.38.0"
 
 dependencies:
@@ -15,11 +15,19 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.4
   crypto: ^3.0.6             # SHA-256 content hashing
-  bonsoir: ^5.1.10           # mDNS / Bonjour (pinned to 5.x event API)
+  bonsoir: ^7.1.5           # mDNS / Bonjour (pinned to 5.x event API)
   mobile_scanner: ^7.4.2     # QR pairing (scan)
   qr_flutter: ^4.1.0         # QR pairing (display)
   permission_handler: ^11.3.1 # Android MANAGE_EXTERNAL_STORAGE prompt
   wakelock_plus: ^1.2.8      # keep the device awake during a sync
+  basic_utils: ^5.8.2
+  sqflite_common_ffi: ^2.4.4
+  file_picker: ^13.1.0
+  share_plus: ^13.3.1
+  url_launcher: ^6.3.3
+  pointycastle: ^4.0.0
+  device_info_plus: ^13.3.0
+  desktop_drop: ^0.8.4
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +37,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/icon.png
+    - assets/icon/foreground.png
 
 # Regenerate app icons with: dart run flutter_launcher_icons
 flutter_launcher_icons:
@@ -39,3 +50,10 @@ flutter_launcher_icons:
   min_sdk_android: 24
   adaptive_icon_background: "#100D0A"
   adaptive_icon_foreground: assets/icon/foreground.png
+  macos:
+    generate: true
+    image_path: assets/icon/icon_macos.png
+  windows:
+    generate: true
+    image_path: assets/icon/icon.png
+    icon_size: 256

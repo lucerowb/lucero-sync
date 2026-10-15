@@ -17,6 +17,9 @@ class MainActivity : FlutterActivity() {
                     "picturesDir" -> result.success(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
                     )
+                    "downloadsDir" -> result.success(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
+                    )
                     "hasAllFilesAccess" -> result.success(
                         Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()
                     )
