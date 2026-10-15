@@ -1,0 +1,30 @@
+name: lucero_sync
+description: Local-network photo backup between iOS and Android. No cloud.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  photo_manager: ^3.6.0      # PHAsset (iOS) + MediaStore (Android)
+  sqflite: ^2.4.1            # sync-state database
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  crypto: ^3.0.6             # SHA-256 content hashing
+  bonsoir: ^5.1.10           # mDNS / Bonjour (pinned to 5.x event API)
+  mobile_scanner: ^5.2.3     # QR pairing (scan)
+  qr_flutter: ^4.1.0         # QR pairing (display)
+  permission_handler: ^11.3.1 # Android MANAGE_EXTERNAL_STORAGE prompt
+  wakelock_plus: ^1.2.8      # keep the device awake during a sync
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

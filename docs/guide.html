@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup guide — Lucero Sync</title>
+  <meta name="description" content="Install Lucero Sync on Android and iPhone, pair the phones, and back up your photos over Wi-Fi. Includes troubleshooting.">
+  <meta name="theme-color" content="#100d0a">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L36.6 27.4 L58 32 L36.6 36.6 L32 58 L27.4 36.6 L6 32 L27.4 27.4 Z" fill="#ffa24a"/><circle cx="32" cy="32" r="4" fill="#fff4e4"/></svg>
+      Lucero Sync
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <nav class="nav-links" id="nav-links">
+      <a href="./#features">Features</a>
+      <a href="guide.html" aria-current="page">Guide</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="doc-hero">
+    <div class="wrap">
+      <span class="mono">User guide</span>
+      <h1>Set up Lucero Sync</h1>
+      <p>Install the app on both phones, pair them once, and back up your whole Camera Roll. Allow about 15 minutes, plus however long your first sync takes.</p>
+    </div>
+  </div>
+
+  <div class="wrap doc">
+    <aside class="toc" aria-label="On this page">
+      <span class="mono">On this page</span>
+      <ol>
+        <li><a href="#before">Before you start</a></li>
+        <li><a href="#android">Install on Android</a></li>
+        <li><a href="#iphone">Install on iPhone</a></li>
+        <li><a href="#pair">Pair your phones</a></li>
+        <li><a href="#first-sync">Your first sync</a></li>
+        <li><a href="#everyday">Everyday use</a></li>
+        <li><a href="#files">Where photos are saved</a></li>
+        <li><a href="#other-directions">Other directions</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+        <li><a href="#reset">Reinstalling &amp; resetting</a></li>
+      </ol>
+    </aside>
+
+    <article class="prose">
+      <h2 id="before">Before you start</h2>
+      <p>You'll need:</p>
+      <ul>
+        <li>An <strong>iPhone</strong> running iOS 15 or later. This is usually the sender.</li>
+        <li>An <strong>Android phone</strong> running Android 7 or later, with enough free space for your library. This is usually the receiver.</li>
+        <li>A <strong>Wi-Fi network</strong> that both phones can join. Home Wi-Fi is ideal; guest networks often block devices from seeing each other.</li>
+        <li>A Mac with Xcode, but only if you're building the iPhone app yourself (option A below).</li>
+      </ul>
+      <div class="platform-cards">
+        <a href="#android"><span class="mono">Step 1</span><strong>Android</strong><span>Download one APK file and open it.</span></a>
+        <a href="#iphone"><span class="mono">Step 2</span><strong>iPhone</strong><span>Build with a free Apple ID, or sideload.</span></a>
+      </div>
+
+      <h2 id="android">Install on Android</h2>
+      <ol>
+        <li>On the Android phone, open the <a href="https://github.com/lucerowb/lucero-sync/releases/latest">latest release</a> and download <code>lucero-sync.apk</code>.</li>
+        <li>Open the downloaded file. If Android asks, allow <strong>Install unknown apps</strong> for your browser or file manager, then tap <strong>Install</strong>.</li>
+        <li>Open <strong>Lucero Sync</strong> and go to the <strong>Receive</strong> tab.</li>
+        <li>Tap <strong>Grant</strong> on the "Save to Pictures/LuceroSync" card and switch on <strong>Allow access to manage all files</strong>. This lets backups appear in your Gallery and Google Photos. Without it, files are saved in the app's private folder instead.</li>
+        <li>Go to <strong>Settings → Apps → Lucero Sync → Battery</strong> and choose <strong>Unrestricted</strong>, so Android doesn't pause the receiver during long syncs.</li>
+      </ol>
+      <div class="callout">
+        <span class="mono">Why not the Play Store?</span>
+        <p>Google Play restricts the "all files access" permission. Installing the APK directly is safe as long as you download it from the official GitHub release.</p>
+      </div>
+
+      <h2 id="iphone">Install on iPhone</h2>
+      <p>Apple only allows apps from the App Store or apps you sign yourself. Pick one of these options.</p>
+
+      <h3>Option A: Build it with your free Apple ID (recommended)</h3>
+      <ol>
+        <li>On your Mac, install <a href="https://apps.apple.com/app/xcode/id497799835">Xcode</a>, <a href="https://docs.flutter.dev/get-started/install/macos">Flutter</a> and CocoaPods (<code>brew install cocoapods</code>).</li>
+        <li>Download the source code:
+<pre>git clone https://github.com/lucerowb/lucero-sync.git
+cd lucero-sync
+flutter pub get</pre></li>
+        <li>Create your signing file:
+<pre>cp ios/Flutter/Signing.example.xcconfig ios/Flutter/Signing.local.xcconfig</pre>
+          Open it and set <code>DEVELOPMENT_TEAM</code> to your Team ID and <code>APP_BUNDLE_ID</code> to something unique, such as <code>com.yourname.lucerosync</code>. To find your Team ID, sign in under <strong>Xcode → Settings → Accounts</strong>, select your "Personal Team" and look at the Team ID shown there.</li>
+        <li>On the iPhone, switch on <strong>Settings → Privacy &amp; Security → Developer Mode</strong> and restart when asked.</li>
+        <li>Connect the iPhone by USB, unlock it, tap <strong>Trust This Computer</strong>, and run:
+<pre>flutter run --release</pre></li>
+        <li>On the first launch iOS says "Untrusted Developer". Go to <strong>Settings → General → VPN &amp; Device Management</strong>, tap your Apple ID, then <strong>Trust</strong>.</li>
+      </ol>
+      <div class="callout warn">
+        <span class="mono">7-day limit</span>
+        <p>Apps signed with a free Apple ID stop opening after 7 days. Reconnect the phone and run <code>flutter run --release</code> again; your sync history is kept. A paid Apple Developer account extends this to a year.</p>
+      </div>
+
+      <h3>Option B: Sideload the prebuilt app</h3>
+      <ol>
+        <li>Install <a href="https://altstore.io">AltStore</a> or <a href="https://sidestore.io">SideStore</a> on your iPhone by following their instructions.</li>
+        <li>Download <code>lucero-sync-unsigned.ipa</code> from the <a href="https://github.com/lucerowb/lucero-sync/releases/latest">latest release</a> on your iPhone.</li>
+        <li>Open it with AltStore or SideStore, which signs it with your Apple ID and installs it. They can also refresh it before the 7 days run out.</li>
+      </ol>
+
+      <h2 id="pair">Pair your phones</h2>
+      <ol>
+        <li>Connect <strong>both phones to the same Wi-Fi network</strong>.</li>
+        <li><strong>Android:</strong> open <strong>Receive</strong> and tap <strong>Start receiving</strong>. A QR code, the phone's IP address and a 6-digit PIN appear.</li>
+        <li><strong>iPhone:</strong> open <strong>Send</strong>. iOS asks to find devices on your local network; tap <strong>Allow</strong>.</li>
+        <li>Tap <strong>Scan QR</strong>, allow camera access, and point the camera at the Android screen. The receiver is now saved under "Receivers".</li>
+      </ol>
+      <p>Can't scan? Tap the receiver under <strong>Found nearby</strong> and type the PIN, or use <strong>Enter IP</strong> with the address and PIN shown on Android.</p>
+      <div class="callout warn">
+        <span class="mono">Don't skip "Allow"</span>
+        <p>If you tap Don't Allow on the local network prompt, the iPhone can't reach the receiver, and you won't see an error that explains why. You can turn it back on under <strong>Settings → Privacy &amp; Security → Local Network → Lucero Sync</strong>.</p>
+      </div>
+
+      <h2 id="first-sync">Your first sync</h2>
+      <ol>
+        <li>On the iPhone, select the receiver and tap <strong>Sync now</strong>.</li>
+        <li>When iOS asks about photo access, choose <strong>Allow Full Access</strong>. With "Limited Access", only the photos you pick get backed up.</li>
+        <li>Lucero scans your library, works out what's new, and starts sending. You'll see the current file, its progress, and counts of files sent, skipped and failed.</li>
+        <li>Keep both apps open and both phones on chargers. The app keeps the screen awake by itself. A large library can take a few hours the first time.</li>
+      </ol>
+      <div class="callout">
+        <span class="mono">Interrupted? That's fine</span>
+        <p>If the Wi-Fi drops, a phone locks or you tap Stop, nothing is lost. Tap <strong>Sync now</strong> again and it continues from where it stopped, even partway through a video.</p>
+      </div>
+      <p>If you use iCloud's <strong>Optimize iPhone Storage</strong>, the iPhone downloads full-quality originals from iCloud as it goes, so it needs internet access too.</p>
+
+      <h2 id="everyday">Everyday use</h2>
+      <ol>
+        <li>Android: <strong>Receive → Start receiving</strong>.</li>
+        <li>iPhone: <strong>Send → Sync now</strong>.</li>
+      </ol>
+      <p>Only photos taken since the last sync are sent. Photos already on the receiver are never copied twice, even if you reinstall the app or pair again.</p>
+
+      <h2 id="files">Where photos are saved</h2>
+      <p>On Android, backups are organised by the date each photo was taken:</p>
+<pre>Pictures/LuceroSync/
+  2026/
+    09/
+      IMG_4021.HEIC
+      IMG_4021.MOV      ← Live Photo motion clip
+      IMG_4022.JPG
+      IMG_4023.MOV      ← video
+    10/
+      …</pre>
+      <table>
+        <thead><tr><th>Type</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td>Photos</td><td>The original file (HEIC, JPEG, RAW/ProRAW), unedited, with location and camera data intact.</td></tr>
+          <tr><td>Videos</td><td>The original MOV/MP4, including slo-mo and cinematic recordings.</td></tr>
+          <tr><td>Live Photos</td><td>Two files with the same name: the still and its MOV clip.</td></tr>
+          <tr><td>Edited photos</td><td>The original, before edits. Edits made after a photo is synced aren't re-sent.</td></tr>
+        </tbody>
+      </table>
+      <p>Android may not show HEIC files in older gallery apps. Google Photos and recent Samsung and Pixel galleries open them fine.</p>
+
+      <h2 id="other-directions">Other directions</h2>
+      <p>Every phone can both send and receive. To back up an Android phone to an iPhone, start <strong>Receive</strong> on the iPhone and <strong>Send</strong> from Android. On iPhone, received files appear in the <strong>Files</strong> app under <strong>On My iPhone → Lucero Sync</strong>. You can also pair one sender with several receivers; each keeps its own sync history.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <table>
+        <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>The iPhone app closes immediately after opening</td><td>Build the latest version. Old builds lack the UIScene setup that recent iOS versions require.</td></tr>
+          <tr><td>"Waiting for receiver…" forever</td><td>Make sure Android shows <strong>Receive</strong> with the server started, both phones are on the same network, and local network access is allowed on iPhone. Guest Wi-Fi and "AP/client isolation" block the connection.</td></tr>
+          <tr><td>The receiver never appears under "Found nearby"</td><td>Some routers block Bonjour/mDNS. Use <strong>Scan QR</strong> or <strong>Enter IP</strong> instead; that works fine.</td></tr>
+          <tr><td>"Receiver rejected the PIN"</td><td>Delete the receiver on iPhone (trash icon) and scan the QR code again.</td></tr>
+          <tr><td>Some items failed</td><td>Usually iCloud originals that couldn't be downloaded. Connect to the internet and tap <strong>Retry failed</strong>.</td></tr>
+          <tr><td>Photos aren't in the Android Gallery</td><td>All files access wasn't granted, so files went to the app's private folder. Grant it in the Receive tab and sync again.</td></tr>
+          <tr><td>The app won't open after a week (iPhone)</td><td>The free signing expired. Reinstall it with <code>flutter run --release</code>, or refresh it in AltStore or SideStore.</td></tr>
+        </tbody>
+      </table>
+      <p>Still stuck? <a href="https://github.com/lucerowb/lucero-sync/issues/new/choose">Open an issue</a> and include the lines from the Receive screen's log.</p>
+
+      <h2 id="reset">Reinstalling &amp; resetting</h2>
+      <ul>
+        <li><strong>Reinstalling the sender</strong> erases its sync history, so the next sync rescans everything. The receiver still recognises files it already has and skips them, so nothing is duplicated; it just takes longer.</li>
+        <li><strong>Deleting a backed-up file on the receiver</strong> makes the next sync restore it. Backups are meant to be complete.</li>
+        <li><strong>Deleting photos on the iPhone</strong> never deletes them from the backup.</li>
+      </ul>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Lucero Sync contributors · MIT License</span>
+    <nav>
+      <a href="guide.html">Guide</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

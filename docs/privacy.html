@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy policy — Lucero Sync</title>
+  <meta name="description" content="Lucero Sync collects no data. Your photos move only between your own devices on your local network.">
+  <meta name="theme-color" content="#100d0a">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L36.6 27.4 L58 32 L36.6 36.6 L32 58 L27.4 36.6 L6 32 L27.4 27.4 Z" fill="#ffa24a"/><circle cx="32" cy="32" r="4" fill="#fff4e4"/></svg>
+      Lucero Sync
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <nav class="nav-links" id="nav-links">
+      <a href="./#features">Features</a>
+      <a href="guide.html">Guide</a>
+      <a href="privacy.html" aria-current="page">Privacy</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="doc-hero">
+    <div class="wrap">
+      <span class="mono">Legal</span>
+      <h1>Privacy policy</h1>
+      <p>In one sentence: Lucero Sync doesn't collect, store or send any of your data to us or anyone else. Your photos only move between your own devices.</p>
+      <p class="mono updated">Last updated: 15 October 2026</p>
+    </div>
+  </div>
+
+  <div class="wrap doc">
+    <aside class="toc" aria-label="On this page">
+      <span class="mono">On this page</span>
+      <ol>
+        <li><a href="#summary">Summary</a></li>
+        <li><a href="#collect">What we collect</a></li>
+        <li><a href="#on-device">Data on your devices</a></li>
+        <li><a href="#network">Network activity</a></li>
+        <li><a href="#permissions">Permissions</a></li>
+        <li><a href="#third-parties">Third parties</a></li>
+        <li><a href="#website">This website</a></li>
+        <li><a href="#children">Children</a></li>
+        <li><a href="#changes">Changes</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </aside>
+
+    <article class="prose">
+      <h2 id="summary">Summary</h2>
+      <table>
+        <tbody>
+          <tr><td><strong>Personal data collected by us</strong></td><td>None</td></tr>
+          <tr><td><strong>Analytics, crash reporting, ads</strong></td><td>None</td></tr>
+          <tr><td><strong>Accounts</strong></td><td>None; there's nothing to sign up for</td></tr>
+          <tr><td><strong>Servers operated by us</strong></td><td>None</td></tr>
+          <tr><td><strong>Where your photos go</strong></td><td>Only to devices you pair, on your local network</td></tr>
+        </tbody>
+      </table>
+      <p>Lucero Sync is open-source software published by its contributors ("we", "us"). You can check every claim on this page in the <a href="https://github.com/lucerowb/lucero-sync">source code</a>.</p>
+
+      <h2 id="collect">What we collect</h2>
+      <p><strong>Nothing.</strong> The app has no analytics, telemetry, crash reporting, advertising SDKs or remote configuration. We don't receive your photos, metadata, device identifiers, IP address or usage information, and we have no way to.</p>
+
+      <h2 id="on-device">Data stored on your devices</h2>
+      <p>To work, the app stores the following <strong>locally on your phone</strong>, in its private storage. It never leaves the device except as described under <a href="#network">Network activity</a>.</p>
+      <ul>
+        <li><strong>A random device ID, a display name (such as "iPhone-3fa2") and a 6-digit PIN</strong>, generated on first launch. They identify the device to phones you pair with.</li>
+        <li><strong>Paired receivers:</strong> their names, local IP addresses, ports and PINs.</li>
+        <li><strong>Sync history (sender):</strong> for each photo already backed up, its library identifier, filename, size, creation date and a SHA-256 fingerprint of its contents, so it's never sent twice.</li>
+        <li><strong>Received-file index (receiver):</strong> the same kind of information for each file received, plus where it was saved.</li>
+        <li><strong>The received photos and videos</strong>, in the folder shown in the app.</li>
+      </ul>
+      <p>Uninstalling the app deletes its private data. Received photos in <code>Pictures/LuceroSync</code> on Android stay until you delete them.</p>
+
+      <h2 id="network">Network activity</h2>
+      <p>The app only talks to devices on your <strong>local network</strong>:</p>
+      <ul>
+        <li><strong>Discovery:</strong> the receiver announces itself with Bonjour/mDNS, which includes its display name, device ID and port. Other devices on the same network can see this announcement. The PIN isn't included.</li>
+        <li><strong>Transfer:</strong> the sender sends photos, filenames, sizes, creation dates and content fingerprints directly to the paired receiver over HTTP, authenticated with the receiver's PIN.</li>
+      </ul>
+      <div class="callout warn">
+        <span class="mono">Unencrypted on your LAN</span>
+        <p>Transfers aren't encrypted yet. Someone with access to your Wi-Fi who is actively capturing traffic could see photos in transit. Use the app on networks you trust, such as your home Wi-Fi. See the <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a>.</p>
+      </div>
+      <p>On iPhone, if a photo's full-quality original is stored only in iCloud, <strong>iOS itself</strong> downloads it from Apple when the app requests it. This is handled by Apple under <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>; the app doesn't talk to iCloud directly.</p>
+
+      <h2 id="permissions">Permissions and why they're needed</h2>
+      <table>
+        <thead><tr><th>Permission</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td>Photos / media library</td><td>Reading the photos and videos you choose to back up (sender).</td></tr>
+          <tr><td>Local network (iOS)</td><td>Finding and connecting to your other devices.</td></tr>
+          <tr><td>Camera</td><td>Scanning the pairing QR code. The image is processed on the device and never saved or sent.</td></tr>
+          <tr><td>All files access (Android)</td><td>Saving received photos to <code>Pictures/LuceroSync</code> so they show up in your gallery.</td></tr>
+          <tr><td>Wi-Fi, network state, multicast, wake lock</td><td>Running the local server and discovery, and keeping the device awake during a sync.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="third-parties">Third parties</h2>
+      <p>The app includes open-source libraries for photo access, discovery, QR scanning and storage. On iOS and Android, QR scanning uses Google's ML Kit barcode model, which runs <strong>on the device</strong>. The app is configured to send nothing to us, and none of its features rely on a third-party service. We don't sell, share or transfer data, because we don't have any.</p>
+
+      <h2 id="website">This website</h2>
+      <p>This site is hosted on GitHub Pages and loads fonts from Google Fonts. Those providers may log technical data such as your IP address when you visit, under the <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a> and the <a href="https://policies.google.com/privacy">Google privacy policy</a>. The site itself uses no cookies or analytics.</p>
+
+      <h2 id="children">Children</h2>
+      <p>The app doesn't collect personal information from anyone, including children under 13.</p>
+
+      <h2 id="changes">Changes to this policy</h2>
+      <p>If the app's data handling ever changes, we'll update this page and the "Last updated" date before releasing that change. The full history is in the <a href="https://github.com/lucerowb/lucero-sync/commits/main/docs/privacy.html">repository</a>.</p>
+
+      <h2 id="contact">Contact</h2>
+      <p>Questions about privacy? <a href="https://github.com/lucerowb/lucero-sync/issues">Open an issue</a> on GitHub, or report security concerns <a href="https://github.com/lucerowb/lucero-sync/security/advisories/new">privately</a>.</p>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Lucero Sync contributors · MIT License</span>
+    <nav>
+      <a href="guide.html">Guide</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include "Generated.xcconfig"
+
+// Default bundle id; override it (and set DEVELOPMENT_TEAM) in Signing.local.xcconfig.
+APP_BUNDLE_ID = com.lucero.luceroSync
+#include? "Signing.local.xcconfig"

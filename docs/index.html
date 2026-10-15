@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lucero Sync — iPhone to Android photo backup, no cloud</title>
+  <meta name="description" content="Open-source app that backs up your iPhone photos and videos directly to your Android phone over Wi-Fi. No cloud, no account, no tracking.">
+  <meta name="theme-color" content="#100d0a">
+  <meta property="og:title" content="Lucero Sync — your photos, the short way home">
+  <meta property="og:description" content="Back up your iPhone Camera Roll straight to your Android phone over Wi-Fi. No cloud. No account. Open source.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L36.6 27.4 L58 32 L36.6 36.6 L32 58 L27.4 36.6 L6 32 L27.4 27.4 Z" fill="#ffa24a"/><circle cx="32" cy="32" r="4" fill="#fff4e4"/></svg>
+      Lucero Sync
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <nav class="nav-links" id="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <a href="guide.html">Guide</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow mono rise"><span class="dot"></span>Open source · iOS &amp; Android</div>
+        <h1 class="rise">Your photos, the <em>short way</em> home.</h1>
+        <p class="lede rise">Lucero Sync backs up your iPhone Camera Roll straight to your Android phone over Wi-Fi. No cloud, no account, no monthly bill. Just your network.</p>
+        <div class="ctas rise">
+          <a class="btn btn-primary" href="https://github.com/lucerowb/lucero-sync/releases/latest">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download
+          </a>
+          <a class="btn btn-ghost" href="guide.html">Read the setup guide</a>
+        </div>
+        <div class="meta rise">
+          <span class="mono">MIT licensed</span>
+          <span class="mono">0 trackers</span>
+          <span class="mono">0 servers</span>
+        </div>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <div class="wifi-badge mono"><b>●</b> same Wi-Fi · port 8765</div>
+
+        <div class="phone ios">
+          <div class="screen">
+            <span class="notch"></span>
+            <div class="gallery">
+              <i class="p1"></i><i class="p2"></i><i class="p3"></i>
+              <i class="p4"></i><i class="p5"></i><i class="p6"></i>
+              <i class="p7"></i><i class="p8"></i><i class="p9"></i>
+              <i class="p3"></i><i class="p1"></i><i class="p6"></i>
+              <i class="p9"></i><i class="p4"></i><i class="p2"></i>
+            </div>
+          </div>
+          <span class="label mono">iPhone · sender</span>
+        </div>
+
+        <div class="phone android">
+          <div class="screen">
+            <span class="notch"></span>
+            <div class="gallery">
+              <i class="p1"></i><i class="p2"></i><i class="p3"></i>
+              <i class="p4"></i><i class="p5"></i><i class="p6"></i>
+            </div>
+          </div>
+          <span class="label mono">Android · receiver</span>
+        </div>
+
+        <div class="arc">
+          <svg viewBox="0 0 560 520" width="560" height="520"><path d="M 100 210 C 170 -30, 390 -30, 450 270"/></svg>
+          <span class="frame p1"></span>
+          <span class="frame p2"></span>
+          <span class="frame p3"></span>
+          <span class="frame p4"></span>
+          <span class="frame p5"></span>
+          <span class="frame p6"></span>
+        </div>
+
+        <div class="no-cloud mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 18a4 4 0 0 1-.5-7.97A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9H7Z"/><path d="M4 4l16 16" stroke-linecap="round"/></svg>
+          no cloud in between
+        </div>
+      </div>
+    </div>
+
+    <div class="strip" aria-hidden="true">
+      <div class="ticker">
+        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
+        <span>NO CLOUD</span><span>NO ACCOUNT</span><span>ORIGINALS ONLY</span><span>LIVE PHOTOS</span><span>RESUMES MID-FILE</span><span>NEVER DUPLICATES</span><span>OPEN SOURCE</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="why">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="mono">01 — Why</span>
+        <h2>Your phones are in the same room. Your photos shouldn't take a detour.</h2>
+      </div>
+      <div class="compare">
+        <div class="route bad reveal">
+          <span class="mono">The usual way</span>
+          <h3>Cloud backup</h3>
+          <div class="hops">
+            <span class="hop">iPhone</span><span class="arrow">→</span>
+            <span class="hop">internet</span><span class="arrow">→</span>
+            <span class="hop">someone's server</span><span class="arrow">→</span>
+            <span class="hop">internet</span><span class="arrow">→</span>
+            <span class="hop">Android</span>
+          </div>
+          <ul>
+            <li>Monthly storage subscription</li>
+            <li>Every photo leaves your home</li>
+            <li>Limited by your upload speed</li>
+            <li>Often re-compressed along the way</li>
+          </ul>
+        </div>
+        <div class="route good reveal">
+          <span class="mono">The Lucero way</span>
+          <h3>Straight across your Wi-Fi</h3>
+          <div class="hops">
+            <span class="hop">iPhone</span><span class="arrow">→</span>
+            <span class="hop">your router</span><span class="arrow">→</span>
+            <span class="hop">Android</span>
+          </div>
+          <ul>
+            <li>Free, with nothing to sign up for</li>
+            <li>Nothing leaves your network</li>
+            <li>As fast as your local Wi-Fi</li>
+            <li>Bit-for-bit originals, verified by SHA-256</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="mono">02 — Contact sheet</span>
+        <h2>Small app. Careful with every frame.</h2>
+      </div>
+      <div class="sheet reveal">
+        <article class="cell">
+          <span class="num">FR 01A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-5-8 8"/></svg></div>
+          <h3>Originals, untouched</h3>
+          <p>HEIC, RAW and ProRAW photos and full-quality video arrive exactly as they were taken, with EXIF intact and no re-compression.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 02A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5" stroke-dasharray="2 2.5"/><circle cx="12" cy="12" r="10"/></svg></div>
+          <h3>Live Photos, in pairs</h3>
+          <p>The still and its motion clip arrive together as <code>IMG_0001.HEIC</code> + <code>IMG_0001.MOV</code>. A Live Photo only counts as synced once both halves are safe.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 03A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/><path d="m11 14 2 2 4-4"/></svg></div>
+          <h3>Never a duplicate</h3>
+          <p>The sender keeps a ledger of what's been synced. The receiver double-checks every file by content hash and metadata before accepting it.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 04A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></div>
+          <h3>Picks up mid-file</h3>
+          <p>If the Wi-Fi drops or the app closes, the next sync continues from the exact byte it reached, even halfway through a 4 GB video.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 05A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg></div>
+          <h3>Pair in one scan</h3>
+          <p>The receiver shows a QR code. Scan it once and the phones remember each other. Bonjour discovery finds the receiver again if its IP address changes.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 06A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></div>
+          <h3>Any direction</h3>
+          <p>iPhone to Android is the main use, but either phone can send or receive. You can even back one phone up to several others.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="mono">03 — Develop</span>
+        <h2>Three steps, then just tap Sync.</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <h3>Start the receiver</h3>
+          <p>On Android, open the <strong>Receive</strong> tab and tap Start. It shows a QR code and a 6-digit PIN.</p>
+        </div>
+        <div class="step reveal">
+          <h3>Pair your iPhone</h3>
+          <p>On iPhone, open <strong>Send</strong> and scan the code. The phones remember each other from then on.</p>
+        </div>
+        <div class="step reveal">
+          <h3>Sync now</h3>
+          <p>Lucero compares your library with what's already been backed up and sends only what's new, every time.</p>
+        </div>
+      </div>
+      <p class="reveal" style="margin-top:44px"><a class="btn btn-ghost" href="guide.html">Full installation &amp; setup guide →</a></p>
+    </div>
+  </section>
+
+  <!-- PRIVACY -->
+  <section id="privacy">
+    <div class="wrap">
+      <div class="manifesto reveal">
+        <span class="mono">04 — Safelight</span>
+        <blockquote style="margin-top:18px">We built a photo app that <span>can't see your photos</span>, because they never come near us.</blockquote>
+        <div class="facts">
+          <span class="fact"><b>0</b> analytics</span>
+          <span class="fact"><b>0</b> accounts</span>
+          <span class="fact"><b>0</b> servers</span>
+          <span class="fact"><b>LAN</b> only</span>
+          <span class="fact"><b>MIT</b> source you can read</span>
+        </div>
+        <p style="margin-top:36px"><a href="privacy.html">Read the privacy policy →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="mono">05 — Questions</span>
+        <h2>Good to know.</h2>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Is it really free? What's the catch?</summary>
+          <p>There's no catch. It's an MIT-licensed open-source project with no servers to pay for, so there's nothing to charge for. If you'd like to give something back, star the repo or contribute.</p>
+        </details>
+        <details>
+          <summary>Why isn't it on the App Store or Play Store?</summary>
+          <p>Play Store policy restricts the "all files access" permission that lets backups land in your Gallery, and App Store distribution needs a paid developer account. For now, Android installs from a downloadable APK, and iPhone installs by building the app with a free Apple ID or sideloading it with AltStore or SideStore. The <a href="guide.html">guide</a> walks through both.</p>
+        </details>
+        <details>
+          <summary>Do both phones need to stay open during a sync?</summary>
+          <p>Yes, for now. iOS doesn't let apps run long uploads in the background, so keep Lucero open and the phone plugged in. The app keeps the screen awake for you. Later syncs only send new photos, so they're quick.</p>
+        </details>
+        <details>
+          <summary>What if I use iCloud "Optimize iPhone Storage"?</summary>
+          <p>That works. Lucero asks iOS for the full-quality original, and iOS downloads it from iCloud first if needed, so the iPhone needs an internet connection for those photos.</p>
+        </details>
+        <details>
+          <summary>Is the transfer encrypted?</summary>
+          <p>Not yet. Transfers use plain HTTP on your local network, and the receiver only accepts devices that know its PIN. It's built for your home Wi-Fi; avoid using it on public networks. Encrypted transfers are on the roadmap. See the <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a>.</p>
+        </details>
+        <details>
+          <summary>Will deleting a photo on Android make it re-sync?</summary>
+          <p>Yes, by design. If a backed-up file is missing from the receiver's folder, the next sync restores it. Photos you delete on the iPhone stay in the backup.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="download">
+    <div class="wrap reveal">
+      <span class="mono">06 — Print</span>
+      <h2 style="margin-top:18px">Bring your photos home.</h2>
+      <p>Get the Android APK and the iPhone build from the latest release, or build both from source in a few minutes.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://github.com/lucerowb/lucero-sync/releases/latest">Download latest release</a>
+        <a class="btn btn-ghost" href="https://github.com/lucerowb/lucero-sync">View source on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Lucero Sync contributors · MIT License</span>
+    <nav>
+      <a href="guide.html">Guide</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="https://github.com/lucerowb/lucero-sync">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

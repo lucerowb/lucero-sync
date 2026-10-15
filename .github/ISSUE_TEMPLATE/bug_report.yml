@@ -1,0 +1,42 @@
+name: Bug report
+description: Something isn't syncing, crashes, or behaves wrongly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please don't include photos or personal data. For security issues, use [private reporting](https://github.com/lucerowb/lucero-sync/security/advisories/new) instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Lucero Sync version
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: sender
+    attributes:
+      label: Sender device and OS
+      placeholder: iPhone 16 Pro Max, iOS 27.0
+    validations:
+      required: true
+  - type: input
+    id: receiver
+    attributes:
+      label: Receiver device and OS
+      placeholder: Pixel 9, Android 16
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Receiver log / error message
+      description: Copy the lines from the Receive screen's log or the error shown on the Send screen.
+      render: text

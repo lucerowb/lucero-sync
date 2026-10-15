@@ -1,0 +1,9 @@
+// Copy this file to Signing.local.xcconfig (git-ignored) and fill in your values.
+//
+// DEVELOPMENT_TEAM: your Apple Team ID. Find it in Xcode → Settings → Accounts,
+//   or at https://developer.apple.com/account → Membership details.
+//   A free Apple ID works (it shows up as "Personal Team").
+// APP_BUNDLE_ID: must be globally unique for your team, e.g. com.yourname.lucerosync
+
+DEVELOPMENT_TEAM = ABCDE12345
+APP_BUNDLE_ID = com.yourname.lucerosync
