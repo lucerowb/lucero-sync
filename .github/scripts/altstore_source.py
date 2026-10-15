@@ -61,7 +61,7 @@ source = {
                     "minOSVersion": info.get("MinimumOSVersion", "15.0"),
                 }
             ],
-            "appPermissions": {"entitlements": [], "privacy": privacy},
+            "appPermissions": {"entitlements": ["com.apple.security.application-groups"], "privacy": privacy},
         }
     ],
     "news": [],

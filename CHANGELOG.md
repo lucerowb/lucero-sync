@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0
+
+### New
+- **Live progress on both devices.** Receivers now see incoming backups (item count plus the file arriving) and every incoming share, including auto-accepted ones; stalled transfers show as paused. A new *In progress* section on Share, Activity and Backup, and a badge on Activity.
+- **Share sheet:** send photos, videos, files, links and text to Lucero Sync from any app on iPhone and Android.
+- **Dynamic Island & Lock Screen** Live Activity on iPhone (iOS 16.2+).
+- **Menu bar / system tray** on Mac, Windows and Linux with progress, Send files / Send clipboard to any device, and a receiving toggle. Closing the window keeps the app running.
+- **Web access:** let any browser on your Wi-Fi send to and download from a device after entering a 6-digit code shown on it.
+- **Browser extension** for Chrome, Edge, Brave and Firefox: send links, images, selections and pages to a paired device through the desktop app.
+
+### Fixed
+- **macOS:** the app could hang on launch behind an invisible "access your Documents folder" prompt (the database now lives in Application Support; existing data is moved).
+- **iPhone/iPad/Mac:** the app could freeze when returning to the foreground while announcing itself on the network (patched mDNS plugin).
+- Picked files are no longer lost when a window is resized between phone and desktop layouts.
+- Storage paths say "On My iPad" on iPads.
+
 ## 0.2.1
 
 ### New

@@ -35,7 +35,13 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
   - Every file is SHA-256-verified before it's saved.
 - **Never duplicates.** Each backup is checked against a ledger and against content hashes.
 - **Resumes mid-file** after Wi-Fi drops, restarts or address changes.
+- **Live progress on both devices.** The sender and the receiver both see every transfer and backup as it happens.
 - **Ask or auto-accept** incoming files, per device.
+- **Share from any app.** Lucero Sync appears in the iPhone and Android share sheets.
+- **Dynamic Island & Lock Screen** progress on iPhone (Live Activity, iOS 16.2+).
+- **Menu bar / system tray** on Mac, Windows and Linux: progress, quick "Send files to…", and the window can be closed while it keeps receiving.
+- **Web access:** any browser on your Wi-Fi can send to and download from a device, after entering a code shown on it. No app needed on that computer.
+- **Browser extension** for Chrome, Edge, Brave and Firefox: right-click a link, image, selection or page to send it to a paired device (via the desktop app).
 - **Drag and drop** on desktop.
 - **No analytics, ads or accounts of our own.** On Android only, the QR scanner's Google ML Kit library sends Google diagnostic data; see the [privacy policy](https://lucerosync.lucerowb.com/privacy.html).
 
@@ -48,6 +54,8 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
 | macOS | `lucero-sync-macos.zip` | Unzip and move to Applications. On first launch, right-click → **Open**. |
 | Windows | `lucero-sync-windows-x64.zip` | Unzip and run `lucero_sync.exe`. Allow it on **Private** networks. |
 | Linux | `lucero-sync-linux-x64.tar.gz` | Extract and run `./install.sh`. Needs GTK 3 and `zenity` or `kdialog`. |
+| Chrome / Edge / Brave | `lucero-sync-chrome.zip` | Unzip, open `chrome://extensions`, turn on Developer mode, **Load unpacked**. Needs the desktop app. |
+| Firefox | `lucero-sync-firefox.zip` | `about:debugging` → This Firefox → **Load Temporary Add-on**. Needs the desktop app. |
 
 Everything is on the [latest release](https://github.com/lucerowb/lucero-sync/releases/latest). The [user guide](https://lucerosync.lucerowb.com/guide.html) covers installing, pairing, sharing, backup and troubleshooting.
 
@@ -55,7 +63,7 @@ Everything is on the [latest release](https://github.com/lucerowb/lucero-sync/re
 
 ## Build from source
 
-You need [Flutter](https://docs.flutter.dev/get-started/install) 3.38+, plus the toolchain for your target platform: Xcode and CocoaPods for iOS and macOS, Android Studio for Android, Visual Studio with "Desktop development with C++" for Windows, and `clang cmake ninja-build pkg-config libgtk-3-dev` for Linux.
+You need [Flutter](https://docs.flutter.dev/get-started/install) 3.38+, plus the toolchain for your target platform: Xcode and CocoaPods for iOS and macOS, Android Studio for Android, Visual Studio with "Desktop development with C++" for Windows, and `clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev` for Linux.
 
 ```bash
 git clone https://github.com/lucerowb/lucero-sync.git
@@ -86,6 +94,7 @@ flutter test     # end-to-end protocol tests over real TLS
 ## Known limitations
 
 - Keep the app open during large transfers. iOS doesn't allow long background transfers.
+- Web access uses the device's own certificate, so browsers show a one-time "not private" warning (the connection is still encrypted).
 - Desktop photo-library backup works only on macOS. Windows and Linux receive backups and share files.
 - Both devices must be on the same network; there's no relay.
 

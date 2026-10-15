@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css?v=0.2.1">
+  <link rel="stylesheet" href="assets/site.css?v=0.3.0">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -52,6 +52,10 @@
         <li><a href="#linux">Install on Linux</a></li>
         <li><a href="#pair">Pair your devices</a></li>
         <li><a href="#share">Send files &amp; text</a></li>
+        <li><a href="#from-apps">Share from other apps</a></li>
+        <li><a href="#progress">Progress, Dynamic Island &amp; tray</a></li>
+        <li><a href="#web">Web access</a></li>
+        <li><a href="#extension">Browser extension</a></li>
         <li><a href="#backup">Back up photos</a></li>
         <li><a href="#files">Where files are saved</a></li>
         <li><a href="#upgrade">Upgrading from 0.1</a></li>
@@ -155,6 +159,34 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
       <p><strong>Text and links:</strong> tap <strong>⋮</strong> on a device and choose <strong>Send text</strong>. The other device shows it with <strong>Copy</strong> and <strong>Open link</strong> buttons.</p>
       <p><strong>Skip the confirmation:</strong> tap ⋮ › <strong>Accept files automatically</strong>, or tick <strong>Always accept from…</strong> on an incoming request. Do this only for your own devices.</p>
 
+      <h2 id="from-apps">Share from other apps</h2>
+      <p>In Photos, Files, a browser or any other app, tap <strong>Share</strong> and choose <strong>Lucero Sync</strong>. Lucero Sync opens with the items ready; tap the device to send them to. On iPhone, if Lucero Sync isn't in the first row, tap <strong>More</strong> and add it to your favourites.</p>
+
+      <h2 id="progress">Progress, Dynamic Island &amp; tray</h2>
+      <ul>
+        <li><strong>Both devices</strong> show every transfer under <strong>In progress</strong> (on Share, Backup and Activity), including photo backups another device is sending to this one. A transfer that stops arriving shows as <em>paused</em>.</li>
+        <li><strong>iPhone (iOS 16.2+):</strong> progress appears in the Dynamic Island and on the Lock Screen while you use other apps. Touch and hold the island for details. You can turn this off under <strong>Settings › Lucero Sync › Live Activities</strong>.</li>
+        <li><strong>Mac, Windows, Linux:</strong> the star icon in the menu bar or system tray shows progress (on a Mac, as a percentage next to the icon) and has <strong>Send files to</strong> and <strong>Send clipboard to</strong> menus. Closing the window keeps Lucero Sync receiving; use <strong>Quit</strong> in that menu to exit. On GNOME, the icon needs the AppIndicator extension (Ubuntu has it on by default).</li>
+      </ul>
+
+      <h2 id="web">Web access</h2>
+      <p>Use any computer or phone on the same Wi-Fi without installing anything:</p>
+      <ol>
+        <li>On a device running Lucero Sync, open <strong>Settings › Web access</strong> and turn it on.</li>
+        <li>On the other computer, open one of the <code>https://…</code> addresses it shows. The browser warns that the connection isn't private because the device uses its own certificate. To be sure it's your device, compare the certificate's SHA-256 fingerprint with the one shown under Web access, then continue.</li>
+        <li>Enter the 6-digit code. You can now drop files to send them, send text, and download anything you add under <strong>Send to browser</strong>.</li>
+      </ol>
+      <p>Web access stays on until you turn it off or close the app, and turning it off signs every browser out.</p>
+
+      <h2 id="extension">Browser extension</h2>
+      <p>Send links, images, selected text and whole pages from Chrome, Edge, Brave or Firefox to any paired device. It needs Lucero Sync running on the same computer.</p>
+      <ol>
+        <li>Download <code>lucero-sync-chrome.zip</code> or <code>lucero-sync-firefox.zip</code> from the <a href="https://github.com/lucerowb/lucero-sync/releases/latest">latest release</a> and unzip it.</li>
+        <li><strong>Chrome, Edge, Brave:</strong> open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click <strong>Load unpacked</strong> and choose the folder. <strong>Firefox:</strong> open <code>about:debugging</code> › <strong>This Firefox</strong> › <strong>Load Temporary Add-on</strong> and pick <code>manifest.json</code> (temporary add-ons are removed when Firefox restarts).</li>
+        <li>In Lucero Sync, open <strong>Settings › Browser extension › Connect a browser</strong> and enter the code in the extension's popup.</li>
+      </ol>
+      <p>Then right-click anything on a page and choose <strong>Send to Lucero Sync device</strong>, or use the toolbar button.</p>
+
       <h2 id="backup">Back up photos</h2>
       <p>You can back up the photo library of an <strong>iPhone, iPad, Android phone or Mac</strong> to any paired device. A Windows or Linux computer makes a good backup destination.</p>
       <ol>
@@ -223,6 +255,6 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
   </div>
 </footer>
 
-<script src="assets/site.js?v=0.2.1"></script>
+<script src="assets/site.js?v=0.3.0"></script>
 </body>
 </html>

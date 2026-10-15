@@ -33,6 +33,33 @@ class _SharePageState extends State<SharePage> {
   final _picked = <_Picked>[];
   bool _dragging = false;
 
+  /// Text/links shared into the app from another app, sent with the files.
+  final _texts = <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+    app.mobile.incoming.addListener(_takeShared);
+    _takeShared();
+  }
+
+  @override
+  void dispose() {
+    app.mobile.incoming.removeListener(_takeShared);
+    super.dispose();
+  }
+
+  void _takeShared() {
+    final payload = app.mobile.incoming.value;
+    if (payload == null) return;
+    app.mobile.incoming.value = null;
+    _addPaths(payload.files);
+    setState(() => _texts.addAll(payload.texts.where((t) => !_texts.contains(t))));
+    final n = payload.files.length + payload.texts.length;
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _toast('$n item${n == 1 ? '' : 's'} ready to send. Tap a device.'));
+  }
+
   /// Which picker is opening; the system sheet can take a second or two.
   FileType? _opening;
 
@@ -62,10 +89,16 @@ class _SharePageState extends State<SharePage> {
   }
 
   Future<void> _sendTo(PeerDevice peer) async {
-    if (_picked.isEmpty) return _deviceActions(peer);
-    app.sendFiles(peer, _picked.map((f) => f.path).toList());
-    setState(_picked.clear);
-    _toast('Sending to ${peer.name}. Progress is in Activity.');
+    if (_picked.isEmpty && _texts.isEmpty) return _deviceActions(peer);
+    if (_picked.isNotEmpty) app.sendFiles(peer, _picked.map((f) => f.path).toList());
+    for (final t in _texts) {
+      app.sendText(peer, t);
+    }
+    setState(() {
+      _picked.clear();
+      _texts.clear();
+    });
+    _toast('Sending to ${peer.name}.');
   }
 
   Future<void> _sendText(PeerDevice peer) async {
@@ -246,7 +279,19 @@ class _SharePageState extends State<SharePage> {
                   busy: _opening == FileType.media,
                   onTap: () => _pick(FileType.media)),
             ]),
-            if (_picked.isEmpty)
+            for (final t in _texts)
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(t.startsWith('http') ? Icons.link_rounded : Icons.notes_rounded),
+                title: Text(t, maxLines: 2, overflow: TextOverflow.ellipsis),
+                trailing: IconButton(
+                  tooltip: 'Remove',
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                  onPressed: () => setState(() => _texts.remove(t)),
+                ),
+              ),
+            if (_picked.isEmpty && _texts.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 14),
                 child: Text(
@@ -256,7 +301,7 @@ class _SharePageState extends State<SharePage> {
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               )
-            else ...[
+            else if (_picked.isNotEmpty) ...[
               const SizedBox(height: 12),
               for (final f in _picked.take(6))
                 ListTile(

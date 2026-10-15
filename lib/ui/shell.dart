@@ -18,6 +18,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   int _index = 0;
+  final _pagesKey = GlobalKey();
 
   static const _destinations = [
     (Icons.ios_share_outlined, Icons.ios_share_rounded, 'Share'),
@@ -30,12 +31,19 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.app.mobile.incoming.addListener(_showShare);
   }
 
   @override
   void dispose() {
+    widget.app.mobile.incoming.removeListener(_showShare);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// Items shared from another app: jump to the Share tab to pick a device.
+  void _showShare() {
+    if (widget.app.mobile.incoming.value != null && _index != 0) setState(() => _index = 0);
   }
 
   @override
@@ -54,7 +62,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       SettingsPage(app: app),
     ];
     final width = MediaQuery.sizeOf(context).width;
-    final body = IndexedStack(index: _index, children: pages);
+    // Keyed so the pages keep their state when the layout switches between
+    // bottom bar and sidebar (window resize, rotation, app switching).
+    final body = IndexedStack(key: _pagesKey, index: _index, children: pages);
 
     return ListenableBuilder(
       listenable: app,

@@ -16,6 +16,8 @@ The full design is in [ARCHITECTURE.md › Security model](ARCHITECTURE.md#secur
 - **Paired devices authenticate with 256-bit bearer tokens**, stored only as hashes and sent only over the pinned channel.
 - **Every received file is verified** by SHA-256 before it's saved. File names are sanitised.
 - **Discovery data is treated as untrusted.** A paired device advertising a different identity is flagged and not trusted.
+- **Web access is off by default.** When on, browsers can't pin the certificate, so it relies on a 6-digit code shown on the device (rate limited per address, rotated after repeated failures) that starts a short-lived session. Turning it off, or closing the app, ends every session. Browsers can only download files you explicitly offer.
+- **The browser-extension API listens on 127.0.0.1 only**, needs a token issued for a one-time code from Settings, and refuses requests from web pages (`Origin`) and DNS-rebinding attempts (`Host`).
 
 ## Threat model
 
@@ -29,6 +31,8 @@ The full design is in [ARCHITECTURE.md › Security model](ARCHITECTURE.md#secur
 | Writing outside the destination folder | Physical access to an unlocked device |
 
 ## Known gaps
+
+- Web access can't pin certificates the way the apps do. Someone on your network who intercepts the browser's first connection could present their own certificate; compare the fingerprint shown in **Settings › Web access** with the one the browser shows before entering the code.
 
 - The private key is stored in the app's private data folder, not in the Secure Enclave or Android Keystore.
 - On Android, QR scanning uses Google ML Kit, which sends diagnostic data to Google. It doesn't send the camera image or your files.

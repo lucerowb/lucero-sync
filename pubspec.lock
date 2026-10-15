@@ -58,12 +58,11 @@ packages:
     source: hosted
     version: "7.1.3"
   bonsoir_darwin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: bonsoir_darwin
-      sha256: "6f695a0b4465514b75fc1a457746ab6dfc10d7180f0d04810fd9512e6520df69"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/bonsoir_darwin"
+      relative: true
+    source: path
     version: "7.1.1"
   bonsoir_linux:
     dependency: transitive

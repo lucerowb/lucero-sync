@@ -97,6 +97,7 @@ HTTPS. Requests other than `info` and `pair/*` need `Authorization: Bearer <toke
 | `POST /v2/unpair` | Forget the caller |
 | `POST /v2/backup/check` | Deduplication pre-check: `exists`, `partial` (with byte offset) or `missing` |
 | `PUT /v2/backup/files/<sha256>` | Resumable backup upload (filename, size, created date and offset in headers) |
+| `POST /v2/backup/status` | The sender's run progress `{run, state, done, total, file}`, so the receiver can show it. Best effort; older receivers ignore it |
 | `POST /v2/share/offer` | Offer files `{offerId, files:[{id,name,size,sha256}]}` or `{offerId, text}`; waits for Accept |
 | `PUT /v2/share/<offer>/<file>` | Resumable shared-file upload |
 | `POST /v2/share/<offer>/cancel` | Sender cancelled |
@@ -130,6 +131,27 @@ HTTPS. Requests other than `info` and `pair/*` need `Authorization: Bearer <toke
 4. The receiver saves each verified file into the **Received** folder and records the transfer in Activity.
 
 Text is a single offer carrying `text` (up to 100 KB). The receiver shows it with Copy and Open link buttons.
+
+## Live progress on both devices
+
+([live_transfers.dart](lib/app/live_transfers.dart))
+
+- **Shares:** the receiver learns about every accepted offer (prompted or auto-accepted) and counts bytes as they arrive; a transfer with no bytes for 30 s shows as *paused*.
+- **Backups:** the sender posts `/v2/backup/status` on every phase change and at most every 2 s; the receiver combines it with the bytes of the file arriving.
+- `AppController.live` summarises everything in flight in either direction. It drives the *In progress* sections, the Activity badge, the desktop tray, the iOS Live Activity and the web page.
+
+## Integrations
+
+| | Where | How |
+|---|---|---|
+| **Share sheet (iOS)** | `ios/ShareExtension` | Copies shared items into the App Group inbox as one batch plus `manifest.json`, then opens `lucerosync://share`. The app takes batches on launch/resume (`lucero_sync/platform` › `takeSharedItems`). AltStore/SideStore rename App Groups; the group is looked up from `ALTAppGroups` first. |
+| **Share sheet (Android)** | `MainActivity.kt` | `SEND` / `SEND_MULTIPLE` intents; content URIs are copied to the cache off the main thread. |
+| **Live Activity (iOS 16.2+)** | `ios/LiveActivity`, `ios/Shared` | ActivityKit, started/updated/ended from Dart at most once a second; Lock Screen and Dynamic Island views. |
+| **Tray (desktop)** | [desktop_tray.dart](lib/app/desktop_tray.dart) | `tray_manager` + `window_manager`. Closing the window hides it; Quit is in the menu. |
+| **Web access** | [web_access.dart](lib/net/web_access.dart), `assets/web/index.html` | Served by the same TLS server under `/` and `/web/api/*`. Off by default; a 6-digit code (5 failures per 5 min per address, rotated after 20 failures overall) starts a 128-bit session token. Uploads are size-checked and streamed to disk; downloads only serve files the user added. |
+| **Browser extension** | `browser-extension/`, [local_api.dart](lib/net/local_api.dart) | The desktop app listens on `127.0.0.1:47865–47869` only. A one-time code from Settings issues a 256-bit token (stored hashed). Requests with a web `Origin` or a non-loopback `Host` are refused (CSRF, DNS rebinding). |
+
+`tool/add_ios_extensions.rb` adds the two iOS extension targets to the Xcode project (idempotent).
 
 ## Storage
 
@@ -175,13 +197,17 @@ lib/
   app/        AppController: wires services together, UI state, prompts
   backup/     photo library scanner and backup engine
   core/       protocol, models, database, identity, platform capabilities
-  net/        HTTPS server, pinned client, mDNS discovery
+  net/        HTTPS server, pinned client, mDNS discovery, web access, extension API
   security/   TLS identity (certificates) and pairing cryptography
   share/      outgoing file and text transfers
   storage/    folders, .part files, sanitising
   ui/         adaptive shell, pages, pairing dialogs, theme
 test/         end-to-end protocol tests over real TLS on localhost
-tool/         manual demo helpers
+tool/         demo helpers, tray icon generator, iOS extension target script
+assets/web/   the web access page (single self-contained HTML file)
+browser-extension/  Chrome / Firefox extension (Manifest V3)
+ios/ShareExtension, ios/LiveActivity, ios/Shared   iOS app extensions
+third_party/  vendored bonsoir_darwin with a main-thread fix (see its README)
 ```
 
 ## Known limitations

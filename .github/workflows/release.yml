@@ -61,6 +61,15 @@ jobs:
         run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
+          # Ad-hoc sign with the App Group entitlement. AltStore/SideStore read
+          # entitlements from the binaries when they re-sign, and the share
+          # extension needs the group to hand files to the app.
+          GROUP=$(/usr/libexec/PlistBuddy -c 'Print :AppGroupId' Payload/Runner.app/Info.plist)
+          sed "s/\$(APP_GROUP_ID)/$GROUP/" ios/Runner/Runner.entitlements > app.entitlements
+          codesign -f -s - --entitlements app.entitlements Payload/Runner.app/PlugIns/ShareExtension.appex
+          codesign -f -s - Payload/Runner.app/PlugIns/LiveActivity.appex
+          codesign -f -s - --entitlements app.entitlements Payload/Runner.app
+          codesign -d --entitlements - Payload/Runner.app | grep -q "$GROUP"
           zip -qr lucero-sync-unsigned.ipa Payload
       - name: Generate AltStore / SideStore source
         run: >
@@ -105,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libx11-dev libxi-dev
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -118,10 +127,17 @@ jobs:
           B=build/linux/x64/release/bundle
           cp packaging/linux/lucero-sync.desktop packaging/linux/lucero-sync.png packaging/linux/install.sh "$B"/
           tar -czf lucero-sync-linux-x64.tar.gz -C "$B" .
+      - name: Package browser extension
+        run: |
+          bash browser-extension/build.sh
+          cp browser-extension/dist/lucero-sync-chrome.zip browser-extension/dist/lucero-sync-firefox.zip .
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: lucero-sync-linux-x64.tar.gz
+          path: |
+            lucero-sync-linux-x64.tar.gz
+            lucero-sync-chrome.zip
+            lucero-sync-firefox.zip
 
   publish:
     name: Publish GitHub release
@@ -141,3 +157,5 @@ jobs:
             lucero-sync-macos.zip
             lucero-sync-windows-x64.zip
             lucero-sync-linux-x64.tar.gz
+            lucero-sync-chrome.zip
+            lucero-sync-firefox.zip

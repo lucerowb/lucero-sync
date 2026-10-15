@@ -1,0 +1,7 @@
+// Base configuration for the app extensions (share sheet, Live Activity).
+// Same bundle id / team / version as the app; see Signing.example.xcconfig.
+#include "Generated.xcconfig"
+
+APP_BUNDLE_ID = com.lucero.luceroSync
+APP_GROUP_ID = group.$(APP_BUNDLE_ID)
+#include? "Signing.local.xcconfig"

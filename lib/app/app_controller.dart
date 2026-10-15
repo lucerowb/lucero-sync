@@ -21,6 +21,7 @@ import '../security/pairing_crypto.dart';
 import '../share/share_sender.dart';
 import '../storage/storage.dart';
 import 'live_transfers.dart';
+import 'mobile_bridge.dart';
 
 export 'live_transfers.dart';
 
@@ -85,6 +86,7 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   late final BackupEngine backup;
   late final ShareSender shares;
   late final WebAccess webAccess;
+  late final MobileBridge mobile;
 
   /// Loopback API for the browser extension (desktop only).
   LocalApi? localApi;
@@ -136,6 +138,7 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
     webAccess = WebAccess(this, loadPage: () => rootBundle.loadString('assets/web/index.html'));
     webAccess.addListener(notifyListeners);
     server.extraHandler = webAccess.handle;
+    mobile = MobileBridge(this)..start();
     backup.addListener(_scheduleLive);
     addListener(_scheduleLive);
 
