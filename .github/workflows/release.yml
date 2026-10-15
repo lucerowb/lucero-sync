@@ -63,10 +63,17 @@ jobs:
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
           zip -qr lucero-sync-unsigned.ipa Payload
+      - name: Generate AltStore / SideStore source
+        run: >
+          python3 .github/scripts/altstore_source.py
+          build/ios/iphoneos/Runner.app/Info.plist lucero-sync-unsigned.ipa
+          "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" altstore-source.json
       - uses: actions/upload-artifact@v4
         with:
           name: ipa
-          path: lucero-sync-unsigned.ipa
+          path: |
+            lucero-sync-unsigned.ipa
+            altstore-source.json
 
   publish:
     name: Publish GitHub release
@@ -82,3 +89,4 @@ jobs:
           files: |
             lucero-sync.apk
             lucero-sync-unsigned.ipa
+            altstore-source.json

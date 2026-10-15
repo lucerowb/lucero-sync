@@ -107,12 +107,19 @@ flutter pub get</pre></li>
         <p>Apps signed with a free Apple ID stop opening after 7 days. Reconnect the phone and run <code>flutter run --release</code> again; your sync history is kept. A paid Apple Developer account extends this to a year.</p>
       </div>
 
-      <h3>Option B: Sideload the prebuilt app</h3>
+      <h3>Option B: Install with AltStore or SideStore (no Mac needed after setup)</h3>
       <ol>
-        <li>Install <a href="https://altstore.io">AltStore</a> or <a href="https://sidestore.io">SideStore</a> on your iPhone by following their instructions.</li>
-        <li>Download <code>lucero-sync-unsigned.ipa</code> from the <a href="https://github.com/lucerowb/lucero-sync/releases/latest">latest release</a> on your iPhone.</li>
-        <li>Open it with AltStore or SideStore, which signs it with your Apple ID and installs it. They can also refresh it before the 7 days run out.</li>
+        <li>Install <a href="https://altstore.io">AltStore Classic</a> or <a href="https://sidestore.io">SideStore</a> on your iPhone by following their instructions.</li>
+        <li>In AltStore or SideStore, open <strong>Sources</strong>, tap <strong>+</strong>, and paste this source URL:
+<pre>https://github.com/lucerowb/lucero-sync/releases/latest/download/altstore-source.json</pre></li>
+        <li>Open <strong>Lucero Sync</strong> in the source and tap <strong>Free</strong> (AltStore) or <strong>Get</strong> (SideStore). It's signed with your Apple ID and installed.</li>
+        <li>Keep AltStore or SideStore refreshing your apps (they do it in the background) so Lucero Sync doesn't expire after 7 days. New versions appear as updates in the same app.</li>
       </ol>
+      <p>You can also download <code>lucero-sync-unsigned.ipa</code> from the <a href="https://github.com/lucerowb/lucero-sync/releases/latest">latest release</a> and open it in AltStore or SideStore directly, but then you won't get update notifications.</p>
+      <div class="callout">
+        <span class="mono">Free Apple ID limits</span>
+        <p>A free Apple ID can have at most 3 sideloaded apps active at once, including AltStore or SideStore itself.</p>
+      </div>
 
       <h2 id="pair">Pair your phones</h2>
       <ol>

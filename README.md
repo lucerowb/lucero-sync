@@ -38,7 +38,7 @@ Lucero Sync copies the photo library on one phone to another phone on the same W
 | Platform | How |
 |---|---|
 | **Android** (receiver) | Download `lucero-sync.apk` from the [latest release](https://github.com/lucerowb/lucero-sync/releases/latest) and open it on your phone. |
-| **iPhone** (sender) | Build from source with a free Apple ID (below), or sideload the unsigned `.ipa` from the release with [AltStore](https://altstore.io) or [SideStore](https://sidestore.io). |
+| **iPhone** (sender) | Add the source `https://github.com/lucerowb/lucero-sync/releases/latest/download/altstore-source.json` in [AltStore](https://altstore.io) or [SideStore](https://sidestore.io), or build from source with a free Apple ID (below). |
 
 The [user guide](https://lucerosync.lucerowb.com/guide.html) walks through installing, pairing and running your first sync, with a troubleshooting section.
 
