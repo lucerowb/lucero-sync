@@ -52,3 +52,6 @@ app.*.map.json
 
 # Working notes for legal counsel (not for publication)
 LEGAL_REVIEW.md
+
+# Browser extension build output
+browser-extension/dist/

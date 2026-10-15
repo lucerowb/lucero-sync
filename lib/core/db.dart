@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'models.dart';
@@ -105,9 +108,44 @@ class AppDatabase {
     'CREATE INDEX idx_transfers_time ON transfers (created_at)',
   ];
 
+  /// sqflite's default folder on macOS is ~/Documents, which macOS guards with
+  /// a privacy prompt; the open() call blocks the main thread until it's
+  /// answered, and ad-hoc signed builds are asked again after every update.
+  /// Application Support isn't guarded. Databases from 0.2.x are moved once.
+  static Future<String> _defaultPath() async {
+    if (!Platform.isMacOS) return p.join(await getDatabasesPath(), 'lucero_sync.db');
+    final dir = await getApplicationSupportDirectory();
+    await dir.create(recursive: true);
+    final target = p.join(dir.path, 'lucero_sync.db');
+    if (await File(target).exists()) return target;
+    try {
+      // Runs on Dart's I/O threads, so a privacy prompt here can't freeze the UI.
+      final old = p.join(await getDatabasesPath(), 'lucero_sync.db');
+      if (await File(old).exists().timeout(const Duration(seconds: 30))) {
+        for (final suffix in ['', '-wal', '-shm']) {
+          final f = File('$old$suffix');
+          if (await f.exists()) await f.copy('$target$suffix');
+        }
+        for (final suffix in ['', '-wal', '-shm']) {
+          final f = File('$old$suffix');
+          if (await f.exists()) await f.delete();
+        }
+      }
+    } catch (_) {
+      // No access or no answer: start fresh rather than wait, and don't keep
+      // a half-copied database.
+      for (final suffix in ['', '-wal', '-shm']) {
+        try {
+          await File('$target$suffix').delete();
+        } catch (_) {}
+      }
+    }
+    return target;
+  }
+
   /// Opens (or creates) the database. [path] is for tests and multi-instance runs.
   static Future<AppDatabase> open({String? path}) async {
-    path ??= p.join(await getDatabasesPath(), 'lucero_sync.db');
+    path ??= await _defaultPath();
     final db = await openDatabase(
       path,
       version: _version,

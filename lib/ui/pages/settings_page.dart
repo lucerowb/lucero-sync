@@ -12,6 +12,7 @@ import '../format.dart';
 import '../open.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
+import 'browser_pages.dart';
 import '../widgets/permissions_card.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -76,6 +77,30 @@ class SettingsPage extends StatelessWidget {
                   subtitle: const Text("Addresses and fixes if devices can't see each other"),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => _ConnectionHelpPage(app: app))),
                 ),
+              ]),
+            ),
+            const SectionLabel('Browsers'),
+            Card(
+              child: Column(children: [
+                ListTile(
+                  leading: const Icon(Icons.language_rounded),
+                  title: const Text('Web access'),
+                  subtitle: Text(app.webAccess.enabled
+                      ? 'On · ${app.webAccess.sessions.length} browser${app.webAccess.sessions.length == 1 ? '' : 's'} signed in'
+                      : 'Send and receive from any browser on your network'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WebAccessPage(app: app))),
+                ),
+                if (Caps.isDesktop) ...[
+                  const Divider(indent: 72),
+                  ListTile(
+                    leading: const Icon(Icons.extension_outlined),
+                    title: const Text('Browser extension'),
+                    subtitle: const Text('Right-click to send links, images and pages from Chrome or Firefox'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExtensionPage(app: app))),
+                  ),
+                ],
               ]),
             ),
             const SectionLabel('Storage'),

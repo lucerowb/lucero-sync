@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'app/app_controller.dart';
+import 'app/desktop_tray.dart';
+import 'core/platform.dart';
 import 'ui/shell.dart';
 import 'ui/theme.dart';
 import 'ui/widgets/prompt_host.dart';
@@ -27,7 +29,21 @@ class LuceroSyncApp extends StatefulWidget {
 
 class _LuceroSyncAppState extends State<LuceroSyncApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
-  late Future<AppController> _boot = AppController.boot();
+  late Future<AppController> _boot = _start();
+  DesktopTray? _tray;
+
+  Future<AppController> _start() async {
+    final app = await AppController.boot();
+    if (Caps.isDesktop && _tray == null) {
+      try {
+        _tray = DesktopTray(app);
+        await _tray!.start();
+      } catch (e) {
+        app.log('Tray unavailable: $e');
+      }
+    }
+    return app;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +60,7 @@ class _LuceroSyncAppState extends State<LuceroSyncApp> {
           if (snap.hasError) {
             return _BootError(
               error: snap.error!,
-              onRetry: () => setState(() => _boot = AppController.boot()),
+              onRetry: () => setState(() => _boot = _start()),
             );
           }
           final app = snap.data;

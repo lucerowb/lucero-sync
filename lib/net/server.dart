@@ -125,6 +125,9 @@ class LuceroServer extends ChangeNotifier {
   Storage storage;
   final ServerDelegate delegate;
 
+  /// Handles requests outside `/v2` (web access). Returns false if unhandled.
+  Future<bool> Function(HttpRequest req)? extraHandler;
+
   HttpServer? _server;
   final _pairSessions = <String, _PairSession>{};
   final _offers = <String, _IncomingOffer>{};
@@ -172,7 +175,10 @@ class LuceroServer extends ChangeNotifier {
   Future<void> _handle(HttpRequest req) async {
     try {
       final seg = req.uri.pathSegments;
-      if (seg.isEmpty || seg.first != 'v2') return await _reply(req, 404, {'status': 'not_found'});
+      if (seg.isEmpty || seg.first != 'v2') {
+        if (extraHandler != null && await extraHandler!(req)) return;
+        return await _reply(req, 404, {'status': 'not_found'});
+      }
       final route = seg.skip(1).join('/');
 
       // Unauthenticated: identity and pairing.

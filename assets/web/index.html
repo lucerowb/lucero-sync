@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#100D0A">
+<meta name="referrer" content="no-referrer">
+<title>Lucero Sync</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 L36.6 27.4 L58 32 L36.6 36.6 L32 58 L27.4 36.6 L6 32 L27.4 27.4 Z' fill='%23ffa24a'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%23fff4e4'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#100D0A;--s1:#19140F;--s2:#241C15;--line:#3A2E23;--paper:#F2E8D8;--dim:#C9BBA5;
+  --amber:#FFA24A;--ok:#6FCF7C;--err:#FF8A73;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--ink);color:var(--paper);font:16px/1.5 var(--sans);
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow-x:hidden;
+  background-image:radial-gradient(900px 500px at 50% -200px,rgba(255,162,74,.10),transparent 70%)}
+[hidden]{display:none!important}
+h1,h2,p{margin:0}
+a{color:var(--amber)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:10px}
+.wrap{width:100%;max-width:720px;margin:0 auto;padding:0 16px}
+.label{font:600 11px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.btn{appearance:none;border:0;border-radius:14px;padding:12px 20px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;
+  transition:transform .15s var(--ease),background-color .15s,opacity .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--amber);color:var(--ink)}
+.btn-primary:hover{background:#ffb26a}
+.btn-ghost{background:var(--s2);color:var(--paper);border:1px solid var(--line)}
+.btn-ghost:hover{background:#2c2219}
+.btn[disabled]{opacity:.45;cursor:default;transform:none}
+.btn-sm{min-height:34px;padding:6px 12px;border-radius:10px;font-size:14px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.star{display:block;flex:none}
+
+/* Connect */
+#connect{flex:1;display:flex;align-items:center;padding:48px 0}
+.connect-card{max-width:420px;margin:0 auto;text-align:center;padding:36px 24px 28px}
+.connect-card .star{width:56px;height:56px;margin:0 auto 20px;filter:drop-shadow(0 0 18px rgba(255,162,74,.35))}
+.connect-card h1{font-size:24px;line-height:1.25;font-weight:650;letter-spacing:-.01em;overflow-wrap:anywhere}
+.connect-card p.lead{color:var(--dim);margin:10px 0 24px;font-size:15px}
+.code{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 8px;
+  text-align:center;font:600 30px/1.2 var(--mono);letter-spacing:.35em;text-indent:.35em;color:var(--paper);
+  transition:border-color .15s}
+.code::placeholder{color:#4d3e30}
+.code:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,162,74,.18)}
+.code[aria-invalid=true]{border-color:var(--err)}
+.connect-card .btn{width:100%;margin-top:14px}
+.msg{min-height:22px;margin-top:12px;font-size:14px;color:var(--err)}
+.shake{animation:shake .35s var(--ease)}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Main */
+header{border-bottom:1px solid var(--line);background:rgba(16,13,10,.85);position:sticky;top:0;z-index:5;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+header .wrap{display:flex;align-items:center;gap:12px;min-height:64px}
+header .star{width:30px;height:30px}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-size:16px;font-weight:650;line-height:1.2}
+.brand span{display:block;color:var(--dim);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link{background:none;border:0;padding:8px 4px;color:var(--dim);cursor:pointer;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--paper)}
+.banner{background:#3a2a17;color:var(--amber);font-size:13px;text-align:center;padding:6px 16px;display:flex;gap:8px;justify-content:center;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+main{flex:1}main.wrap{padding-top:24px;padding-bottom:8px}
+section{margin-bottom:22px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 4px 10px}
+.sec-head h2{font-size:18px;font-weight:650;letter-spacing:-.005em;overflow-wrap:anywhere}
+
+.drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  min-height:180px;padding:28px 20px;border:1.5px dashed var(--line);border-radius:18px;background:var(--ink);
+  text-align:center;cursor:pointer;transition:border-color .2s,background-color .2s,transform .2s var(--ease)}
+.drop:hover{border-color:#5a4632}
+.drop.over{border-color:var(--amber);background:rgba(255,162,74,.06);transform:scale(1.01)}
+.drop svg{width:40px;height:40px;color:var(--amber);margin-bottom:6px}
+.drop strong{font-size:17px;font-weight:600}
+.drop small{color:var(--dim);font-size:14px}
+.pick{display:none;width:100%}
+@media (pointer:coarse){.drop{display:none}.pick{display:flex}}
+
+.queue{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.row{background:var(--s2);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;
+  grid-template-columns:1fr auto;gap:4px 12px;align-items:center;animation:in .25s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateY(4px)}}
+.row .name{font-weight:550;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta{grid-column:1;color:var(--dim);font-size:13px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .acts{grid-column:2;grid-row:1/3;display:flex;gap:6px}
+.row .bar{grid-column:1/-1;margin-top:6px}
+.st-done .meta{color:var(--ok)}
+.st-fail .meta{color:var(--err)}
+.bar{height:6px;border-radius:6px;background:#0d0a08;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;width:0;background:var(--amber);border-radius:6px;transition:width .3s var(--ease)}
+.st-done .bar i{background:var(--ok)}
+.st-fail .bar i{background:var(--err)}
+.bar.ind i{width:35%;position:absolute;animation:ind 1.3s ease-in-out infinite}
+@keyframes ind{from{left:-35%}to{left:100%}}
+
+.text-form{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.text-form label{display:block;margin:0 4px 8px}
+textarea{width:100%;min-height:88px;resize:vertical;background:var(--ink);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;line-height:1.45;color:var(--paper)}
+textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,162,74,.18)}
+.text-act{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:10px}
+.text-act .status{flex:1;font-size:14px;color:var(--dim)}
+.text-act .status.ok{color:var(--ok)}.text-act .status.bad{color:var(--err)}
+
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.live .row{grid-template-columns:auto 1fr}
+.live .ico{grid-row:1/3;width:32px;height:32px;border-radius:10px;background:var(--ink);display:grid;place-items:center;color:var(--amber)}
+.live .ico svg{width:16px;height:16px}
+.live .name,.live .meta{grid-column:2}
+.out .row{grid-template-columns:auto 1fr auto}
+.out .ico{grid-row:1/3;width:36px;height:36px;border-radius:11px;background:var(--ink);display:grid;place-items:center;color:var(--dim)}
+.out .ico svg{width:18px;height:18px}
+.out .name,.out .meta{grid-column:2}
+.out .btn{grid-column:3;grid-row:1/3;text-decoration:none}
+.empty{color:var(--dim);font-size:14px;text-align:center;padding:22px 12px;border:1px dashed var(--line);border-radius:16px}
+.empty b{color:var(--paper);font-weight:550}
+
+footer{padding:18px 0 28px;color:var(--dim);font-size:13px;text-align:center}
+footer .wrap{display:flex;align-items:center;justify-content:center;gap:8px}
+footer svg{width:14px;height:14px;flex:none;color:var(--ok)}
+
+@media (max-width:420px){
+  .card{padding:16px;border-radius:18px}
+  .out .row{grid-template-columns:auto 1fr}
+  .out .btn{grid-column:1/-1;grid-row:auto;margin-top:6px;width:100%}
+  .code{font-size:26px;letter-spacing:.25em;text-indent:.25em}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .bar.ind i{left:0;width:100%;opacity:.35}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="star" viewBox="0 0 64 64"><path d="M32 6 L36.6 27.4 L58 32 L36.6 36.6 L32 58 L27.4 36.6 L6 32 L27.4 27.4 Z" fill="#ffa24a"/><circle cx="32" cy="32" r="4" fill="#fff4e4"/></symbol>
+  <symbol id="up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+</svg>
+
+<div id="connect" hidden>
+  <div class="wrap">
+    <form class="card connect-card" id="loginForm" novalidate>
+      <svg class="star" aria-hidden="true"><use href="#star"/></svg>
+      <h1 id="connectTitle">Connect to your device</h1>
+      <p class="lead">Enter the 6-digit code shown on the device under Settings&nbsp;›&nbsp;Web access.</p>
+      <label for="code" class="sr">6-digit code</label>
+      <input id="code" class="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+        autocomplete="one-time-code" placeholder="••••••" aria-describedby="loginMsg" required>
+      <button class="btn btn-primary" id="loginBtn" type="submit">Connect</button>
+      <p class="msg" id="loginMsg" role="alert" aria-live="assertive"></p>
+    </form>
+  </div>
+</div>
+
+<div id="app" hidden style="display:contents">
+  <header>
+    <div class="wrap">
+      <svg class="star" aria-hidden="true"><use href="#star"/></svg>
+      <div class="brand"><b>Lucero Sync</b><span id="devLine"></span></div>
+      <button class="link" id="logout" type="button">Disconnect</button>
+    </div>
+    <div class="banner" id="banner" role="status" hidden><span class="dot" aria-hidden="true"></span>Reconnecting…</div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="sendH">
+      <div class="sec-head"><h2 id="sendH">Send to device</h2></div>
+      <div class="card">
+        <div class="drop" id="drop" role="button" tabindex="0" aria-describedby="dropHint">
+          <svg aria-hidden="true"><use href="#up"/></svg>
+          <strong>Drop files here</strong>
+          <small id="dropHint">or click to choose files</small>
+        </div>
+        <button class="btn btn-primary pick" id="pick" type="button"><svg width="18" height="18" aria-hidden="true"><use href="#up"/></svg>Choose files</button>
+        <input type="file" id="files" multiple hidden>
+        <ul class="queue" id="queue" aria-label="Upload queue"></ul>
+        <p class="sr" id="qLive" aria-live="polite"></p>
+
+        <form class="text-form" id="textForm">
+          <label for="text" class="label">Send text</label>
+          <textarea id="text" placeholder="Paste a link or write a note…" maxlength="100000"></textarea>
+          <div class="text-act">
+            <span class="status" id="textStatus" role="status" aria-live="polite"></span>
+            <button class="btn btn-ghost" id="textBtn" type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section aria-labelledby="liveH" id="liveSec" hidden>
+      <div class="sec-head"><h2 id="liveH">In progress</h2><span class="label" id="liveCount"></span></div>
+      <ul class="list live" id="live" aria-live="polite"></ul>
+    </section>
+
+    <section aria-labelledby="outH">
+      <div class="sec-head"><h2 id="outH">From device</h2></div>
+      <ul class="list out" id="out"></ul>
+      <p class="empty" id="outEmpty">Nothing shared with this browser yet. On the device, open <b>Settings › Web access › Send to browser</b>.</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap"><svg aria-hidden="true"><use href="#lock"/></svg><span>Files go straight to the device over your Wi-Fi. Nothing is uploaded to the internet.</span></div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const KEY = 'lucero_web_token';
+const PLAT = {ios:'iOS', android:'Android', macos:'macOS', windows:'Windows', linux:'Linux'};
+let token = null, device = {name:'', platform:''};
+let pollTimer = 0, pollFail = false, polling = false, lastLive = '', lastOut = '';
+
+const store = {
+  get(){ try { return sessionStorage.getItem(KEY); } catch { return null; } },
+  set(v){ try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch {} }
+};
+
+function fmtBytes(b){
+  b = Number(b) || 0;
+  if (b < 1024) return b + ' B';
+  const u = ['KB','MB','GB','TB']; let v = b / 1024, i = 0;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return v.toFixed(v < 10 ? 1 : 0) + ' ' + u[i];
+}
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function submitForm(f){ f.requestSubmit ? f.requestSubmit() : f.dispatchEvent(new Event('submit', {cancelable:true})); }
+function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+async function api(path, opts = {}){
+  const headers = Object.assign({}, opts.headers);
+  if (token) headers.Authorization = 'Bearer ' + token;
+  if (opts.json !== undefined){ headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(opts.json); }
+  const res = await fetch(path, {method: opts.method || 'GET', headers, body: opts.body, cache:'no-store', credentials:'same-origin'});
+  let data = null; try { data = await res.json(); } catch {}
+  if (res.status === 401 && token && !opts.noExpire) { expire(); }
+  return {ok: res.ok, status: res.status, data: data || {}};
+}
+
+/* ---------- device naming ---------- */
+function setDevice(d){
+  if (d && d.name) device.name = d.name;
+  if (d && d.platform) device.platform = d.platform;
+  const n = device.name || 'your device';
+  $('connectTitle').textContent = 'Connect to ' + n;
+  $('sendH').textContent = 'Send to ' + n;
+  $('liveH').textContent = 'In progress on ' + n;
+  $('outH').textContent = 'From ' + n;
+  $('devLine').textContent = [device.name, PLAT[device.platform] || device.platform].filter(Boolean).join(' · ');
+  document.title = device.name ? device.name + ' · Lucero Sync' : 'Lucero Sync';
+}
+
+/* ---------- screens ---------- */
+function showConnect(msg){
+  stopPoll();
+  $('app').hidden = true; $('connect').hidden = false;
+  $('loginMsg').textContent = msg || '';
+  const c = $('code'); c.value = ''; c.removeAttribute('aria-invalid');
+  setTimeout(() => c.focus(), 30);
+}
+function showMain(){
+  $('connect').hidden = true; $('app').hidden = false;
+  startPoll();
+}
+function expire(){
+  token = null; store.set(null);
+  abortAll();
+  showConnect('Session ended. Enter the code again to reconnect.');
+}
+
+/* ---------- login ---------- */
+const code = $('code');
+code.addEventListener('input', () => {
+  const v = code.value.replace(/\D/g, '').slice(0, 6);
+  if (v !== code.value) code.value = v;
+  code.removeAttribute('aria-invalid'); $('loginMsg').textContent = '';
+  if (v.length === 6) submitForm($('loginForm'));
+});
+$('loginForm').addEventListener('submit', (e) => { e.preventDefault(); login(); });
+
+let loggingIn = false;
+async function login(){
+  if (loggingIn) return;
+  const v = code.value.trim();
+  const msg = $('loginMsg'), btn = $('loginBtn');
+  if (!/^\d{6}$/.test(v)) { fail('Enter all 6 digits.'); return; }
+  loggingIn = true; btn.disabled = true; btn.textContent = 'Connecting…'; msg.textContent = '';
+  try {
+    const r = await api('/web/api/login', {method:'POST', json:{code:v}, noExpire:true});
+    if (r.ok && r.data.token) {
+      token = r.data.token; store.set(token); setDevice(r.data); showMain();
+    } else if (r.status === 401) fail("That code didn't match.");
+    else if (r.status === 429) fail('Too many attempts. Wait a few minutes.');
+    else fail('Something went wrong (' + r.status + '). Try again.');
+  } catch { fail("Can't reach the device. Check you're on the same Wi-Fi."); }
+  finally { loggingIn = false; btn.disabled = false; btn.textContent = 'Connect'; }
+}
+function fail(t){
+  const card = $('loginForm');
+  $('loginMsg').textContent = t; code.setAttribute('aria-invalid', 'true');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  code.select();
+}
+
+$('logout').addEventListener('click', async () => {
+  abortAll();
+  try { await api('/web/api/logout', {method:'POST', json:{}, noExpire:true}); } catch {}
+  token = null; store.set(null);
+  showConnect('');
+});
+
+/* ---------- polling ---------- */
+function startPoll(){ stopPoll(); poll(); }
+function stopPoll(){ clearTimeout(pollTimer); pollTimer = 0; }
+function schedule(){ stopPoll(); if (token && !document.hidden) pollTimer = setTimeout(poll, pollFail ? 5000 : 1500); }
+async function poll(){
+  if (!token || polling) return;
+  polling = true;
+  try {
+    const r = await api('/web/api/state');
+    if (!token) return;
+    if (r.ok) { setFail(false); render(r.data); }
+    else if (r.status !== 401) setFail(true);
+  } catch { setFail(true); }
+  finally { polling = false; schedule(); }
+}
+function setFail(f){ pollFail = f; $('banner').hidden = !f; }
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopPoll(); else if (token) startPoll(); });
+
+function render(s){
+  setDevice(s);
+  const items = (s.live && Array.isArray(s.live.items)) ? s.live.items : [];
+  const lk = JSON.stringify(items);
+  if (lk !== lastLive) {
+    lastLive = lk;
+    $('liveSec').hidden = !items.length;
+    $('liveCount').textContent = items.length > 1 ? items.length + ' active' : '';
+    $('live').innerHTML = items.map(it => {
+      const f = typeof it.fraction === 'number' ? Math.max(0, Math.min(1, it.fraction)) : null;
+      const send = it.direction === 'sending';
+      const who = (send ? 'to ' : 'from ') + (it.peer || 'unknown') + (it.backup ? ' · backup' : '');
+      const pct = f == null ? '' : ' aria-valuenow="' + Math.round(f * 100) + '"';
+      return '<li class="row"><span class="ico" aria-hidden="true"><svg><use href="#' + (send ? 'up' : 'down') + '"/></svg></span>' +
+        '<span class="name">' + esc(it.title) + '</span><span class="meta">' + esc(who) + (it.status ? ' · ' + esc(it.status) : '') + '</span>' +
+        '<div class="bar' + (f == null ? ' ind' : '') + '" role="progressbar" aria-label="' + esc(it.title) + '" aria-valuemin="0" aria-valuemax="100"' + pct + '>' +
+        '<i style="width:' + (f == null ? '' : (f * 100).toFixed(1) + '%') + '"></i></div></li>';
+    }).join('');
+  }
+  const out = Array.isArray(s.outbox) ? s.outbox : [];
+  const ok = JSON.stringify(out);
+  if (ok !== lastOut) {
+    lastOut = ok;
+    $('outEmpty').hidden = out.length > 0;
+    $('out').innerHTML = out.map(o =>
+      '<li class="row"><span class="ico" aria-hidden="true"><svg><use href="#file"/></svg></span>' +
+      '<span class="name" title="' + esc(o.name) + '">' + esc(o.name) + '</span><span class="meta">' + fmtBytes(o.size) + '</span>' +
+      '<a class="btn btn-primary btn-sm" href="' + esc(o.url) + '" download="' + esc(o.name) + '" aria-label="Download ' + esc(o.name) + '">' +
+      '<svg width="16" height="16" aria-hidden="true"><use href="#down"/></svg>Download</a></li>').join('');
+  }
+}
+
+/* ---------- uploads ---------- */
+const queue = []; let active = null, seq = 0;
+const qEl = $('queue'), input = $('files'), drop = $('drop');
+
+function announce(t){ $('qLive').textContent = t; }
+function addFiles(list){
+  const arr = Array.from(list || []);
+  if (!arr.length) return;
+  for (const f of arr) {
+    const it = {id: ++seq, file: f, status: 'wait', pct: 0, err: '', xhr: null};
+    it.li = buildRow(it); qEl.appendChild(it.li); queue.push(it); paint(it);
+  }
+  announce(arr.length === 1 ? 'Added ' + arr[0].name : 'Added ' + arr.length + ' files');
+  pump();
+}
+function buildRow(it){
+  const li = el('li', 'row');
+  li.append(el('span', 'name', it.file.name));
+  it.metaEl = el('span', 'meta');
+  it.acts = el('span', 'acts');
+  const bar = el('div', 'bar'); bar.setAttribute('role', 'progressbar');
+  bar.setAttribute('aria-label', it.file.name); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100');
+  it.fill = el('i'); bar.append(it.fill); it.bar = bar;
+  li.append(it.acts, it.metaEl, bar);
+  return li;
+}
+function actBtn(label, fn, name){
+  const b = el('button', 'btn btn-ghost btn-sm', label); b.type = 'button';
+  b.setAttribute('aria-label', label + ' ' + name); b.addEventListener('click', fn); return b;
+}
+function paint(it){
+  const size = fmtBytes(it.file.size);
+  const text = {wait:'Waiting', send:'Sending ' + it.pct + '%', done:'Sent', fail:it.err || 'Failed'}[it.status];
+  it.li.className = 'row st-' + it.status;
+  it.metaEl.textContent = size + ' · ' + text;
+  const w = it.status === 'done' || it.status === 'fail' ? 100 : it.pct;
+  it.fill.style.width = w + '%';
+  it.bar.setAttribute('aria-valuenow', String(w));
+  const key = it.status;
+  if (it.actsKey === key) return;
+  it.actsKey = key; it.acts.textContent = '';
+  if (key === 'wait' || key === 'send') it.acts.append(actBtn('Cancel', () => cancel(it), it.file.name));
+  else if (key === 'fail') {
+    it.acts.append(actBtn('Retry', () => { it.status = 'wait'; it.pct = 0; it.err = ''; paint(it); pump(); }, it.file.name));
+    it.acts.append(actBtn('Remove', () => remove(it), it.file.name));
+  } else if (key === 'done') setTimeout(() => { if (it.status === 'done') remove(it); }, 6000);
+}
+function remove(it){
+  const i = queue.indexOf(it); if (i >= 0) queue.splice(i, 1);
+  if (it.li.contains(document.activeElement)) drop.focus();
+  it.li.remove();
+}
+function cancel(it){
+  if (it.status === 'send' && it.xhr) { it.cancelled = true; it.xhr.abort(); }
+  remove(it); announce('Cancelled ' + it.file.name);
+  if (active === it) { active = null; pump(); }
+}
+function abortAll(){
+  for (const it of queue.slice()) { if (it.xhr) { it.cancelled = true; it.xhr.abort(); } it.li.remove(); }
+  queue.length = 0; active = null;
+}
+function pump(){
+  if (active || !token) return;
+  const it = queue.find(q => q.status === 'wait');
+  if (!it) return;
+  active = it; it.status = 'send'; it.pct = 0; paint(it);
+  const xhr = new XMLHttpRequest(); it.xhr = xhr;
+  const url = '/web/api/upload?name=' + encodeURIComponent(it.file.name) + '&size=' + it.file.size;
+  xhr.open('PUT', url);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+  let last = -1;
+  xhr.upload.onprogress = (e) => {
+    if (!e.lengthComputable) return;
+    const p = Math.min(99, Math.floor(e.loaded / e.total * 100));
+    if (p !== last) { last = p; it.pct = p; paint(it); }
+  };
+  const finish = (status, err) => {
+    it.xhr = null;
+    if (it.cancelled) return;
+    it.status = status; it.err = err || ''; if (status === 'done') it.pct = 100;
+    paint(it); announce((status === 'done' ? 'Sent ' : 'Failed ') + it.file.name);
+    if (active === it) active = null;
+    pump();
+  };
+  xhr.onload = () => {
+    const s = xhr.status;
+    if (s >= 200 && s < 300) finish('done');
+    else if (s === 401) { it.cancelled = true; it.xhr = null; active = null; expire(); }
+    else if (s === 413) finish('fail', 'Too large for the device');
+    else if (s === 507) finish('fail', 'Device is out of space');
+    else finish('fail', 'Failed (' + s + ')');
+  };
+  xhr.onerror = () => finish('fail', 'Connection lost');
+  xhr.onabort = () => finish('fail', 'Cancelled');
+  xhr.send(it.file);
+}
+window.addEventListener('beforeunload', (e) => { if (active) { e.preventDefault(); e.returnValue = ''; } });
+
+drop.addEventListener('click', () => input.click());
+drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+$('pick').addEventListener('click', () => input.click());
+input.addEventListener('change', () => { addFiles(input.files); input.value = ''; });
+
+let depth = 0;
+const hasFiles = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+window.addEventListener('dragenter', (e) => { if (!hasFiles(e) || $('app').hidden) return; e.preventDefault(); depth++; drop.classList.add('over'); });
+window.addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; if (--depth <= 0) { depth = 0; drop.classList.remove('over'); } });
+window.addEventListener('dragover', (e) => { if (hasFiles(e)) { e.preventDefault(); e.dataTransfer.dropEffect = $('app').hidden ? 'none' : 'copy'; } });
+window.addEventListener('drop', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault(); depth = 0; drop.classList.remove('over');
+  if (!$('app').hidden) addFiles(e.dataTransfer.files);
+});
+
+/* ---------- text ---------- */
+let textTimer = 0;
+$('textForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const ta = $('text'), st = $('textStatus'), btn = $('textBtn');
+  const v = ta.value; if (!v.trim()) { ta.focus(); return; }
+  btn.disabled = true; st.className = 'status'; st.textContent = 'Sending…'; clearTimeout(textTimer);
+  try {
+    const r = await api('/web/api/text', {method:'POST', json:{text:v}});
+    if (r.ok) { ta.value = ''; st.className = 'status ok'; st.textContent = 'Sent to ' + (device.name || 'device'); textTimer = setTimeout(() => { st.textContent = ''; }, 4000); }
+    else if (r.status !== 401) { st.className = 'status bad'; st.textContent = "Couldn't send (" + r.status + ')'; }
+  } catch { st.className = 'status bad'; st.textContent = "Couldn't reach the device"; }
+  finally { btn.disabled = false; }
+});
+$('text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitForm($('textForm')); });
+
+/* ---------- boot ---------- */
+async function boot(){
+  setDevice({});
+  api('/web/api/hello', {noExpire:true}).then(r => { if (r.ok) setDevice(r.data); }).catch(() => {});
+  token = store.get();
+  if (!token) { showConnect(''); return; }
+  try {
+    const r = await api('/web/api/state', {noExpire:true});
+    if (r.status === 401) { token = null; store.set(null); showConnect(''); return; }
+    if (r.ok) render(r.data); else setFail(true);
+  } catch { setFail(true); }
+  showMain();
+}
+boot();
+})();
+</script>
+</body>
+</html>

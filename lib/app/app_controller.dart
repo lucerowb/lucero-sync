@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../backup/backup_engine.dart';
@@ -11,8 +13,10 @@ import '../core/models.dart';
 import '../core/platform.dart';
 import '../core/protocol.dart';
 import '../net/discovery.dart';
+import '../net/local_api.dart';
 import '../net/peer_client.dart';
 import '../net/server.dart';
+import '../net/web_access.dart';
 import '../security/pairing_crypto.dart';
 import '../share/share_sender.dart';
 import '../storage/storage.dart';
@@ -66,11 +70,13 @@ class IncomingProgress {
 enum PeerStatus { online, offline, identityChanged }
 
 /// Central app state. Owns every service and is the server's delegate.
-class AppController extends ChangeNotifier implements ServerDelegate {
-  AppController._(this.db, this.identity, this.storage);
+class AppController extends ChangeNotifier implements ServerDelegate, WebAccessHost, LocalApiHost {
+  AppController._(this.db, this.identity, this.storage, this._dataDir);
+  final Directory _dataDir;
 
   final AppDatabase db;
   final DeviceIdentity identity;
+  @override
   Storage storage;
 
   late final LuceroServer server;
@@ -78,7 +84,12 @@ class AppController extends ChangeNotifier implements ServerDelegate {
   late final Discovery discovery;
   late final BackupEngine backup;
   late final ShareSender shares;
+  late final WebAccess webAccess;
 
+  /// Loopback API for the browser extension (desktop only).
+  LocalApi? localApi;
+
+  @override
   List<PeerDevice> peers = [];
   final Map<String, NearbyDevice> nearby = {};
   List<TransferRecord> history = [];
@@ -106,7 +117,7 @@ class AppController extends ChangeNotifier implements ServerDelegate {
     final dataDir = await getApplicationSupportDirectory();
     final identity = await DeviceIdentity.load(db, dataDir);
     final storage = await Storage.resolve(db);
-    final app = AppController._(db, identity, storage);
+    final app = AppController._(db, identity, storage, dataDir);
     await app._init();
     return app;
   }
@@ -122,6 +133,9 @@ class AppController extends ChangeNotifier implements ServerDelegate {
       notifyListeners();
     });
     server.addListener(notifyListeners);
+    webAccess = WebAccess(this, loadPage: () => rootBundle.loadString('assets/web/index.html'));
+    webAccess.addListener(notifyListeners);
+    server.extraHandler = webAccess.handle;
     backup.addListener(_scheduleLive);
     addListener(_scheduleLive);
 
@@ -132,12 +146,22 @@ class AppController extends ChangeNotifier implements ServerDelegate {
     history = await db.listTransfers();
 
     _nearbySub = discovery.events.listen(_onNearby);
-    try {
-      await discovery.startBrowsing();
-    } catch (e) {
+    // Start browsing in the background: the first call can wait on the OS
+    // local-network permission prompt, and receiving must not wait for it.
+    unawaited(discovery.startBrowsing().timeout(const Duration(seconds: 20)).catchError((Object e) {
       _log('Discovery unavailable: $e');
-    }
+    }));
     if (receiving) await _startServer();
+    if (Caps.isDesktop) {
+      final api = LocalApi(this, tempDir: Directory('${_dataDir.path}${Platform.pathSeparator}extension_uploads'));
+      try {
+        await api.start();
+        api.addListener(notifyListeners);
+        localApi = api;
+      } catch (e) {
+        _log('Browser extension API unavailable: $e');
+      }
+    }
     final target = backupTarget;
     if (target != null) await backup.loadStats(target.deviceId);
   }
@@ -147,7 +171,9 @@ class AppController extends ChangeNotifier implements ServerDelegate {
   Future<void> _startServer() async {
     try {
       await server.start();
-      await discovery.advertise(port: server.port!);
+      unawaited(discovery.advertise(port: server.port!).timeout(const Duration(seconds: 20)).catchError((Object e) {
+        _log('Could not announce on the network: $e');
+      }));
     } catch (e) {
       lastError = 'Could not start receiving: $e';
       _log(lastError!);
@@ -432,6 +458,83 @@ class AppController extends ChangeNotifier implements ServerDelegate {
     notifyListeners();
   }
 
+  // ---- web access (browsers on the network) -----------------------------------------
+
+  @override
+  String get deviceName => identity.name;
+  @override
+  String get platform => identity.platform;
+  @override
+  LiveSummary get liveSummary => live.value;
+
+  PeerDevice _browser(String label) => PeerDevice(
+        deviceId: 'web',
+        name: label,
+        platform: 'web',
+        fingerprint: '',
+        host: '',
+        port: 0,
+        tokenOut: '',
+        tokenInHash: '',
+      );
+
+  @override
+  void webUploadStarted(String id, String from, int total, String name) =>
+      incomingStarted(id, _browser(from), total, name);
+
+  @override
+  void webUploadProgress(String id, int received, int total) => incomingProgress(id, received, total);
+
+  @override
+  Future<void> webUploadFinished(TransferRecord record) async {
+    await db.addTransfer(record);
+    incomingFinished(record);
+  }
+
+  @override
+  void webText(String from, String text) {
+    unawaited(db.addTransfer(TransferRecord(
+      id: PairingCrypto.randomHex(16),
+      direction: TransferDirection.incoming,
+      kind: TransferKind.text,
+      peerId: 'web',
+      peerName: from,
+      title: 'Text',
+      detail: text,
+      status: TransferStatus.done,
+      createdAtMs: DateTime.now().millisecondsSinceEpoch,
+    )).then((_) async {
+      history = await db.listTransfers();
+      notifyListeners();
+    }));
+    unawaited(_ask(TextReceived(_browser(from), text)));
+  }
+
+  // ---- browser extension (loopback API) ---------------------------------------------
+
+  @override
+  bool isOnline(PeerDevice peer) => statusOf(peer) == PeerStatus.online;
+
+  @override
+  String sendTextTo(PeerDevice peer, String text) => shares.sendText(peer, text).id;
+
+  @override
+  String sendFilesTo(PeerDevice peer, List<String> paths) => shares.sendFiles(peer, paths).id;
+
+  @override
+  Future<List<String>> loadExtensionTokenHashes() async {
+    final raw = await db.getValue('extension_tokens');
+    if (raw == null) return [];
+    try {
+      return (jsonDecode(raw) as List).cast<String>();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  @override
+  Future<void> saveExtensionTokenHashes(List<String> hashes) => db.setValue('extension_tokens', jsonEncode(hashes));
+
   // ---- live summary ---------------------------------------------------------------
 
   void _scheduleLive() {
@@ -546,6 +649,7 @@ class AppController extends ChangeNotifier implements ServerDelegate {
   void dispose() {
     _liveTimer?.cancel();
     _nearbySub?.cancel();
+    localApi?.stop();
     discovery.dispose();
     server.stop();
     super.dispose();

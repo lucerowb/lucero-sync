@@ -28,6 +28,7 @@ IconData platformIcon(String platform, {String? name}) => switch (platform) {
       'macos' => Icons.laptop_mac_rounded,
       'windows' => Icons.desktop_windows_rounded,
       'linux' => Icons.computer_rounded,
+      'web' => Icons.public_rounded,
       _ => Icons.devices_other_rounded,
     };
 

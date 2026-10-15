@@ -36,6 +36,9 @@ class LuceroPermissions: NSObject, FlutterPlugin {
       AVCaptureDevice.requestAccess(for: .video) { _ in
         DispatchQueue.main.async { result(Self.describe(AVCaptureDevice.authorizationStatus(for: .video))) }
       }
+    case "activateApp":
+      NSApp.activate(ignoringOtherApps: true)
+      result(nil)
     case "openSettings":
       // Privacy pane for the given section, e.g. "Camera", "Photos", "LocalNetwork".
       let pane = (call.arguments as? String) ?? "Photos"

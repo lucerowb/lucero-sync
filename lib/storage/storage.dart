@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -45,6 +46,11 @@ class Storage {
   static bool get foldersConfigurable => !Platform.isIOS;
 
   static Future<Storage> resolve(AppDatabase db) async {
+    if (Platform.isIOS) {
+      try {
+        if ((await DeviceInfoPlugin().iosInfo).model.toLowerCase().contains('ipad')) iosDeviceWord = 'iPad';
+      } catch (_) {}
+    }
     final custom = (await db.getValue(kBackupsDir), await db.getValue(kReceivedDir));
     final (backups, received, public) = await _defaults();
     final storage = Storage(
@@ -128,8 +134,11 @@ class Storage {
   String get backupsLabel => _label(backupsRoot, 'Backups');
   String get receivedLabel => _label(receivedRoot, 'Received');
 
+  /// "iPhone" or "iPad", as the Files app names local storage.
+  static String iosDeviceWord = 'iPhone';
+
   String _label(Directory d, String iosName) {
-    if (Platform.isIOS) return 'Files › On My iPhone › Lucero Sync › $iosName';
+    if (Platform.isIOS) return 'Files › On My $iosDeviceWord › Lucero Sync › $iosName';
     final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
     if (home != null && d.path.startsWith(home)) return '~${d.path.substring(home.length)}';
     const androidRoot = '/storage/emulated/0/';

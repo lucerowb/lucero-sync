@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lucero Sync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <img class="logo" src="icons/icon-48.png" width="28" height="28" alt="">
+    <div class="brand">
+      <h1>Lucero Sync</h1>
+      <p class="sub" id="app-name" hidden></p>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Loading -->
+    <section id="view-loading" class="view" aria-busy="true">
+      <div class="center dim">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Looking for Lucero Sync…</span>
+      </div>
+    </section>
+
+    <!-- 1. Desktop app not found -->
+    <section id="view-notfound" class="view" hidden>
+      <div class="card hero">
+        <h2>Open Lucero Sync on this computer</h2>
+        <p class="dim">The extension sends things through the Lucero Sync desktop app running on this computer. Open the app, then try again.</p>
+        <button type="button" class="btn primary" id="retry">Retry</button>
+      </div>
+    </section>
+
+    <!-- 2. Not connected -->
+    <section id="view-connect" class="view" hidden>
+      <form class="card hero" id="connect-form" novalidate>
+        <h2>Connect this browser</h2>
+        <label for="code" class="dim">Enter the 6-digit code from Lucero Sync › Settings › Browser extension</label>
+        <input id="code" name="code" class="code-input" type="text" inputmode="numeric"
+               autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"
+               placeholder="000000" aria-describedby="connect-error" required>
+        <p id="connect-error" class="error" role="alert" hidden></p>
+        <button type="submit" class="btn primary" id="connect-btn">Connect</button>
+      </form>
+    </section>
+
+    <!-- 3. Connected -->
+    <section id="view-connected" class="view" hidden>
+      <section class="block" aria-labelledby="devices-h">
+        <div class="block-head">
+          <h2 id="devices-h">Send this tab</h2>
+          <p class="dim small truncate" id="tab-title"></p>
+        </div>
+        <ul class="devices" id="devices" role="list"></ul>
+        <p class="empty dim" id="no-devices" hidden>No paired devices yet. Pair a phone or computer in Lucero Sync first.</p>
+      </section>
+
+      <section class="block card" aria-labelledby="send-h">
+        <h2 id="send-h" class="visually-hidden">Send text or files</h2>
+        <div class="field">
+          <label for="target">Send to</label>
+          <select id="target"></select>
+        </div>
+        <div class="field">
+          <label for="text">Send text</label>
+          <textarea id="text" rows="3" placeholder="Paste or type something…"></textarea>
+        </div>
+        <div class="row">
+          <button type="button" class="btn secondary" id="choose-files">Choose files</button>
+          <input type="file" id="files" multiple hidden>
+          <button type="button" class="btn primary" id="send-text">Send</button>
+        </div>
+      </section>
+
+      <div class="hint" id="image-hint" hidden>
+        <p class="small dim">To send images as files from the right-click menu, allow Lucero Sync to download them.</p>
+        <button type="button" class="btn ghost small-btn" id="allow-images">Allow</button>
+      </div>
+
+      <section class="block" id="live" aria-labelledby="live-h" hidden>
+        <h2 id="live-h">In progress</h2>
+        <ul class="live-list" id="live-list" role="list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
+
+  <footer class="foot" id="foot" hidden>
+    <span class="dim small" id="foot-status"></span>
+    <button type="button" class="link" id="disconnect">Disconnect</button>
+  </footer>
+
+  <script src="lib.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
