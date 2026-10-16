@@ -290,6 +290,37 @@ void main() {
     });
   });
 
+  // Run with: BENCH=1 flutter test test/protocol_test.dart --plain-name speed
+  test('speed', skip: Platform.environment['BENCH'] == null, timeout: const Timeout(Duration(minutes: 5)), () async {
+    final (bSeesA, _) = await pair();
+    final big = File('${root.path}/big.bin');
+    final raf = big.openSync(mode: FileMode.write);
+    final block = List.generate(1 << 20, (i) => (i * 31) & 255);
+    for (var i = 0; i < 300; i++) {
+      raf.writeFromSync(block);
+    }
+    raf.closeSync();
+    final small = Directory('${root.path}/small')..createSync();
+    for (var i = 0; i < 200; i++) {
+      File('${small.path}/f$i.bin').writeAsBytesSync(block.sublist(0, 512 * 1024));
+    }
+    final sender = ShareSender(b.db, b.client);
+    for (final (label, paths, mb) in [('1 × 300 MB', [big.path], 300), ('200 × 0.5 MB', [small.path], 100)]) {
+      final sw = Stopwatch()..start();
+      int? sendingAt;
+      final share = sender.sendFiles(bSeesA, paths);
+      share.addListener(() {
+        if (share.state == ShareState.sending) sendingAt ??= sw.elapsedMilliseconds;
+      });
+      await _until(() => !share.isActive, timeout: const Duration(minutes: 4));
+      expect(share.state, ShareState.done, reason: share.error);
+      final s = sw.elapsedMilliseconds / 1000;
+      // ignore: avoid_print
+      print('$label: ${s.toStringAsFixed(1)} s total, ${(mb / s).toStringAsFixed(0)} MB/s, '
+          'prep ${(sendingAt ?? 0) / 1000} s');
+    }
+  });
+
   group('sharing', () {
     test('sends several files, sanitising names', () async {
       final (bSeesA, _) = await pair();

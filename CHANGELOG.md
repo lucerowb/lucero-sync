@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **Update alerts:** the app checks GitHub for a new release when it opens and every 12 hours, and shows a banner with a download link (on iPhone it points you to AltStore or SideStore). Turn it off in Settings › About.
+
+### Faster
+- **Transfers are several times faster.** Files are no longer fingerprinted before and after sending (TLS already guarantees every byte arrives unchanged), three files upload at once, and progress redraws no longer slow the transfer. Sending to a device on 0.3.1 or older still works; those transfers fingerprint files as before.
+
 ## 0.3.1
 
 ### New

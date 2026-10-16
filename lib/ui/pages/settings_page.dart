@@ -162,6 +162,14 @@ class SettingsPage extends StatelessWidget {
                   subtitle: Text('Version $appVersion · open source (MIT)'),
                 ),
                 const Divider(indent: 72),
+                SwitchListTile(
+                  secondary: const Icon(Icons.system_update_rounded),
+                  title: const Text('Check for updates'),
+                  subtitle: const Text('Asks GitHub twice a day if a new version is out. Nothing about you or your files is sent.'),
+                  value: app.checkUpdates,
+                  onChanged: app.setCheckUpdates,
+                ),
+                const Divider(indent: 72),
                 ListTile(
                   leading: const Icon(Icons.public_rounded),
                   title: const Text('Website & guide'),

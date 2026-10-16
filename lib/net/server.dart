@@ -506,7 +506,7 @@ class LuceroServer extends ChangeNotifier {
     ];
     if (files.isEmpty ||
         files.length > 5000 ||
-        files.any((f) => !isSha256Hex(f.sha256) || f.size < 0 || !RegExp(r'^[A-Za-z0-9_-]{1,64}$').hasMatch(f.id))) {
+        files.any((f) => (f.sha256.isNotEmpty && !isSha256Hex(f.sha256)) || f.size < 0 || !RegExp(r'^[A-Za-z0-9_-]{1,64}$').hasMatch(f.id))) {
       return await _reply(req, 400, {'status': 'bad_request'});
     }
 
@@ -588,8 +588,8 @@ class LuceroServer extends ChangeNotifier {
       final path = await storage.commitShare(part, file.name, topDirs: offer.topDirs);
       offer.savedPaths[fileId] = path;
       await storage.notifyMediaScanner(path);
-      if (offer.complete) {
-        _offers.remove(offerId);
+      // Files finish in parallel: only the one that removes the offer records it.
+      if (offer.complete && _offers.remove(offerId) != null) {
         await _record(TransferRecord(
           id: offerId,
           direction: TransferDirection.incoming,
@@ -692,7 +692,8 @@ class LuceroServer extends ChangeNotifier {
       await part.delete();
       return (422, {'status': Protocol.sizeMismatch});
     }
-    if (await sha256OfFile(part.path) != sha) {
+    // Shares from 0.3.2+ send no hash: TLS already rejects altered bytes, and the size is checked above.
+    if (sha.isNotEmpty && await sha256OfFile(part.path) != sha) {
       await part.delete();
       delegate.log('Discarded a file that failed its integrity check');
       return (422, {'status': Protocol.hashMismatch});

@@ -304,7 +304,7 @@ class ShareFile {
         id: m['id'] as String,
         name: m['name'] as String,
         size: m['size'] as int,
-        sha256: (m['sha256'] as String).toLowerCase(),
+        sha256: (m['sha256'] as String? ?? '').toLowerCase(),
       );
 }
 

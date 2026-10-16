@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
 import '../../app/app_controller.dart';
+import '../../app/updates.dart';
 import '../../core/models.dart';
 import '../../core/platform.dart';
 import '../../share/share_sender.dart';
 import '../format.dart';
+import '../open.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
 import '../widgets/live_transfers.dart';
@@ -275,6 +277,7 @@ class _SharePageState extends State<SharePage> {
             IconButton(tooltip: 'Refresh nearby devices', onPressed: app.refreshNetwork, icon: const Icon(Icons.refresh_rounded)),
           ],
           children: [
+            if (app.update != null) ...[_UpdateCard(app: app, update: app.update!), const SizedBox(height: 12)],
             _ThisDeviceCard(app: app),
             LiveTransfersSection(app: app),
             if (wide)
@@ -553,3 +556,43 @@ class _ThisDeviceCard extends StatelessWidget {
 
 /// Paths that still exist on disk (for re-sending dropped files etc).
 List<String> existingPaths(Iterable<String> paths) => paths.where((p) => File(p).existsSync()).toList();
+
+class _UpdateCard extends StatelessWidget {
+  const _UpdateCard({required this.app, required this.update});
+  final AppController app;
+  final UpdateInfo update;
+
+  @override
+  Widget build(BuildContext context) {
+    final ios = Platform.isIOS;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.system_update_rounded, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text('Lucero Sync ${update.version} is available', style: Theme.of(context).textTheme.titleSmall),
+            ),
+          ]),
+          if (ios)
+            const Padding(
+              padding: EdgeInsets.only(left: 36, top: 4),
+              child: Text('Open AltStore or SideStore to update.'),
+            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(spacing: 4, children: [
+              TextButton(onPressed: app.dismissUpdate, child: const Text('Later')),
+              TextButton(
+                onPressed: () => openLink(update.url.toString()),
+                child: Text(ios ? "What's new" : 'Download'),
+              ),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+}

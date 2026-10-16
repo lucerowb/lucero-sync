@@ -22,6 +22,7 @@ import '../share/share_sender.dart';
 import '../storage/storage.dart';
 import 'live_transfers.dart';
 import 'mobile_bridge.dart';
+import 'updates.dart';
 
 export 'live_transfers.dart';
 
@@ -114,6 +115,12 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   /// while anything is active. Drives the nav badge, tray and Live Activity.
   final live = ValueNotifier<LiveSummary>(const LiveSummary([]));
   Timer? _liveTimer;
+
+  bool checkUpdates = true;
+
+  /// A newer release the user hasn't dismissed; shown on the Share page.
+  UpdateInfo? update;
+  Timer? _updateTimer;
   final logLines = <String>[];
 
   bool receiving = true;
@@ -155,6 +162,9 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
 
     receiving = await db.getBool('receiving', fallback: true);
     includeVideos = await db.getBool('include_videos', fallback: true);
+    checkUpdates = await db.getBool('check_updates', fallback: true);
+    unawaited(_checkForUpdate());
+    _updateTimer = Timer.periodic(const Duration(hours: 12), (_) => _checkForUpdate());
     backupTargetId = await db.getValue('backup_target');
     await _reloadPeers();
     history = await db.listTransfers();
@@ -330,6 +340,31 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   Future<void> setIncludeVideos(bool v) async {
     includeVideos = v;
     await db.setBool('include_videos', v);
+    notifyListeners();
+  }
+
+  Future<void> setCheckUpdates(bool v) async {
+    checkUpdates = v;
+    await db.setBool('check_updates', v);
+    if (!v) update = null;
+    notifyListeners();
+    if (v) await _checkForUpdate();
+  }
+
+  Future<void> _checkForUpdate() async {
+    if (!checkUpdates) return;
+    final found = await fetchUpdate();
+    if (found == null || found.version == await db.getValue('dismissed_update')) return;
+    update = found;
+    notifyListeners();
+  }
+
+  /// "Later": hide this version's banner; a newer one shows again.
+  Future<void> dismissUpdate() async {
+    final u = update;
+    if (u == null) return;
+    update = null;
+    await db.setValue('dismissed_update', u.version);
     notifyListeners();
   }
 
@@ -664,6 +699,7 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   @override
   void dispose() {
     _liveTimer?.cancel();
+    _updateTimer?.cancel();
     _nearbySub?.cancel();
     localApi?.stop();
     discovery.dispose();

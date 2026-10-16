@@ -118,7 +118,16 @@ class Storage {
   /// through [sanitizeRelativePath]). [topDirs] maps each sent top-level
   /// folder to the one used here, so a folder sent twice lands as
   /// "Photos (1)" instead of mixing into the first copy.
-  Future<String> commitShare(File part, String relPath, {Map<String, String>? topDirs}) async {
+  Future<String> commitShare(File part, String relPath, {Map<String, String>? topDirs}) {
+    // One at a time: files arrive in parallel and would race to pick the same free name.
+    final run = _commits.then((_) => _commitShare(part, relPath, topDirs));
+    _commits = run.then((_) {}, onError: (_) {});
+    return run;
+  }
+
+  Future<void> _commits = Future.value();
+
+  Future<String> _commitShare(File part, String relPath, Map<String, String>? topDirs) async {
     final segs = relPath.split('/');
     if (segs.length == 1) return (await _commit(part, receivedRoot, relPath)).path;
     final top = topDirs?[segs.first] ?? await _uniqueDir(segs.first);

@@ -255,14 +255,20 @@ class PeerClient {
   // ---- sharing ------------------------------------------------------------------
 
   /// Offers files; waits (up to ~2 minutes) for the other person to accept.
-  Future<({bool accepted, Map<String, int> offsets})> shareOffer(
+  Future<({bool accepted, bool badRequest, Map<String, int> offsets})> shareOffer(
       PeerDevice peer, String offerId, List<ShareFile> files) async {
     final m = await _call(_for(peer), 'POST', peer.uri('/v2/share/offer'),
         token: peer.tokenOut,
         json: {'offerId': offerId, 'files': [for (final f in files) f.toJson()]},
         timeout: const Duration(minutes: 3));
-    if (m['status'] != Protocol.accepted) return (accepted: false, offsets: <String, int>{});
-    return (accepted: true, offsets: (m['offsets'] as Map).map((k, v) => MapEntry(k as String, v as int)));
+    if (m['status'] != Protocol.accepted) {
+      return (accepted: false, badRequest: m['_http'] == HttpStatus.badRequest, offsets: <String, int>{});
+    }
+    return (
+      accepted: true,
+      badRequest: false,
+      offsets: (m['offsets'] as Map).map((k, v) => MapEntry(k as String, v as int)),
+    );
   }
 
   Future<void> shareText(PeerDevice peer, String offerId, String text) async {

@@ -52,7 +52,14 @@ class OutgoingShare extends ChangeNotifier {
 
   final rate = RateMeter();
 
-  void _bump() {
+  DateTime _lastBump = DateTime(0);
+
+  /// Progress redraws are capped at 10 a second: a rebuild per 64 KB chunk
+  /// competes with TLS for the UI thread and slows the transfer itself.
+  void _bump({bool force = false}) {
+    final now = DateTime.now();
+    if (!force && now.difference(_lastBump).inMilliseconds < 100) return;
+    _lastBump = now;
     rate.add(sentBytes);
     notifyListeners();
   }
@@ -174,27 +181,39 @@ class ShareSender {
     if (share.files.length > maxFiles) {
       throw Exception('That\'s ${share.files.length} files; send at most $maxFiles at a time.');
     }
-    // 1. Hash (off the UI thread) so the receiver can verify every byte.
-    for (final f in share.files) {
-      _checkCancel(share);
-      f.sha256 = await sha256OfFile(f.path);
-    }
-    final wire = [
-      for (var i = 0; i < share.files.length; i++)
-        ShareFile(id: 'f$i', name: share.files[i].name, size: share.files[i].size, sha256: share.files[i].sha256!),
-    ];
+    List<ShareFile> wireFiles() => [
+          for (var i = 0; i < share.files.length; i++)
+            ShareFile(
+                id: 'f$i', name: share.files[i].name, size: share.files[i].size, sha256: share.files[i].sha256 ?? ''),
+        ];
 
-    // 2. Offer and wait for the other person to accept.
+    // 1. Offer and wait for the other person to accept. No hashes: TLS already
+    // protects every byte, and hashing twice was most of the transfer time.
     share._set(ShareState.waitingForAccept);
+    var wire = wireFiles();
     var offer = await _client.shareOffer(share.peer, share.id, wire);
+    if (offer.badRequest) {
+      // 0.3.1 and older receivers require a SHA-256 per file.
+      share._set(ShareState.preparing);
+      for (final f in share.files) {
+        _checkCancel(share);
+        f.sha256 = await sha256OfFile(f.path);
+      }
+      wire = wireFiles();
+      share._set(ShareState.waitingForAccept);
+      offer = await _client.shareOffer(share.peer, share.id, wire);
+    }
     if (!offer.accepted) {
       share._set(ShareState.declined, err: '${share.peer.name} declined.');
       return;
     }
 
-    // 3. Upload each file, resuming after interruptions.
+    // 2. Upload a few files at once (small files are mostly per-request
+    // latency), resuming each after interruptions.
     share._set(ShareState.sending);
-    for (var i = 0; i < wire.length; i++) {
+    var next = 0;
+    Object? failure;
+    Future<void> sendOne(int i) async {
       final f = share.files[i];
       var attempts = 0;
       while (!f.done) {
@@ -223,9 +242,22 @@ class ShareSender {
           offer = await _client.shareOffer(share.peer, share.id, wire);
           if (!offer.accepted) throw ProtocolException('${share.peer.name} cancelled the transfer.');
         }
-        share._bump();
+        share._bump(force: true);
       }
     }
+
+    Future<void> worker() async {
+      while (failure == null && next < wire.length) {
+        try {
+          await sendOne(next++);
+        } catch (e) {
+          failure ??= e;
+        }
+      }
+    }
+
+    await Future.wait([for (var w = 0; w < 3; w++) worker()]);
+    if (failure != null) throw failure!;
     share._set(ShareState.done);
   }
 

@@ -44,13 +44,14 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
 - **Web access:** any browser on your Wi-Fi can send to and download from a device, after entering a code shown on it. No app needed on that computer.
 - **Browser extension** for Chrome, Edge, Brave and Firefox: right-click a link, image, selection or page to send it to a paired device (via the desktop app).
 - **Drag and drop** on desktop.
+- **Update alerts.** The app tells you when a new release is out (Settings › About to turn off).
 - **No analytics, ads or accounts of our own.** On Android only, the QR scanner's Google ML Kit library sends Google diagnostic data; see the [privacy policy](https://lucerosync.lucerowb.com/privacy.html).
 
 ## Download
 
 | Platform | File | Notes |
 |---|---|---|
-| Android | `lucero-sync.apk` | Open it on your phone and allow installing from your browser. |
+| Android | `lucero-sync.apk` | Open it on your phone and allow installing from your browser. For automatic updates, add this repo to [Obtainium](https://obtainium.imranr.dev). |
 | iPhone / iPad | AltStore / SideStore source | Add `https://github.com/lucerowb/lucero-sync/releases/latest/download/altstore-source.json`, or build from source. |
 | macOS | `lucero-sync-macos.zip` | Unzip and move to Applications. On first launch, right-click → **Open**. |
 | Windows | `lucero-sync-windows-x64.zip` | Unzip and run `lucero_sync.exe`. Allow it on **Private** networks. |
