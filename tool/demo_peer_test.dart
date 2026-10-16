@@ -29,9 +29,9 @@ class _Quiet implements ServerDelegate {
   @override
   void incomingFinished(TransferRecord record) {}
   @override
-  void incomingProgress(String offerId, int receivedBytes, int totalBytes) {}
+  void incomingProgress(String offerId, String fileId, int fileBytes) {}
   @override
-  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) {}
+  void incomingStarted(String offerId, PeerDevice from, List<ShareFile> files) {}
   @override
   void backupStatus(PeerDevice from, BackupRunStatus status) {}
   @override

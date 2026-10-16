@@ -52,10 +52,11 @@ abstract class ServerDelegate {
 
   void textReceived(PeerDevice from, String text);
 
-  /// An accepted offer (prompted or auto-accepted) is about to receive files.
-  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title);
+  /// An accepted offer (prompted or auto-accepted) is about to receive [files].
+  void incomingStarted(String offerId, PeerDevice from, List<ShareFile> files);
 
-  void incomingProgress(String offerId, int receivedBytes, int totalBytes);
+  /// [fileBytes] of file [fileId] are on disk; equals its size once verified.
+  void incomingProgress(String offerId, String fileId, int fileBytes);
 
   /// The sender's view of a backup run (see `/v2/backup/status`).
   void backupStatus(PeerDevice from, BackupRunStatus status);
@@ -109,6 +110,7 @@ class _IncomingOffer {
   final Map<String, ShareFile> files;
   final Set<String> accepted;
   final Map<String, String> savedPaths = {};
+  final topDirs = <String, String>{};
   final created = DateTime.now();
   int receivedBytes = 0;
 
@@ -500,7 +502,7 @@ class LuceroServer extends ChangeNotifier {
 
     final files = [
       for (final f in (body['files'] as List? ?? const []).cast<Map<String, dynamic>>())
-        ShareFile.fromJson(f).let((s) => ShareFile(id: s.id, name: sanitizeFilename(s.name), size: s.size, sha256: s.sha256)),
+        ShareFile.fromJson(f).let((s) => ShareFile(id: s.id, name: sanitizeRelativePath(s.name), size: s.size, sha256: s.sha256)),
     ];
     if (files.isEmpty ||
         files.length > 5000 ||
@@ -534,7 +536,7 @@ class LuceroServer extends ChangeNotifier {
     }
 
     final offer = _IncomingOffer(offerId, peer, {for (final f in files) f.id: f}, {for (final f in files) f.id});
-    delegate.incomingStarted(offerId, peer, offer.totalBytes, _filesTitle(files));
+    delegate.incomingStarted(offerId, peer, files);
     _offers.removeWhere((_, o) => DateTime.now().difference(o.created) > const Duration(hours: 24));
     _offers[offerId] = offer;
     return await _reply(req, 200, await _offerResponse(offer));
@@ -579,13 +581,11 @@ class LuceroServer extends ChangeNotifier {
           size: file.size,
           sha: file.sha256,
           onDisk: onDisk,
-          onProgress: (n) {
-            delegate.incomingProgress(offerId, offer.receivedBytes + n - before, offer.totalBytes);
-          });
+          onProgress: (n) => delegate.incomingProgress(offerId, fileId, n));
       if (result != null) return await _reply(req, result.$1, result.$2);
 
       offer.receivedBytes += file.size - before;
-      final path = await storage.commitShare(part, file.name);
+      final path = await storage.commitShare(part, file.name, topDirs: offer.topDirs);
       offer.savedPaths[fileId] = path;
       await storage.notifyMediaScanner(path);
       if (offer.complete) {
@@ -708,8 +708,7 @@ class LuceroServer extends ChangeNotifier {
     delegate.incomingFinished(r);
   }
 
-  String _filesTitle(List<ShareFile> files) =>
-      files.length == 1 ? files.first.name : '${files.first.name} and ${files.length - 1} more';
+  String _filesTitle(List<ShareFile> files) => transferTitle([for (final f in files) f.name]);
 
   String _decodedFilename(String? raw) {
     try {

@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
+import '../app/live_transfers.dart';
 import '../core/db.dart';
 import '../core/hashing.dart';
 import '../core/models.dart';
@@ -47,12 +48,14 @@ class OutgoingShare extends ChangeNotifier {
   bool get isActive =>
       state == ShareState.preparing || state == ShareState.waitingForAccept || state == ShareState.sending;
 
-  String get title {
-    if (text != null) return 'Text';
-    return files.length == 1 ? files.first.name : '${files.first.name} and ${files.length - 1} more';
-  }
+  String get title => text != null ? 'Text' : transferTitle([for (final f in files) f.name]);
 
-  void _bump() => notifyListeners();
+  final rate = RateMeter();
+
+  void _bump() {
+    rate.add(sentBytes);
+    notifyListeners();
+  }
 
   void _set(ShareState s, {String? err}) {
     state = s;
@@ -61,7 +64,33 @@ class OutgoingShare extends ChangeNotifier {
   }
 }
 
+/// Files to send for [paths]: files as they are, folders recursively under
+/// their own name ("Trip/Day 1/IMG.jpg"). Hidden files and folders are skipped.
+// shortcut: lists synchronously; move to an isolate if huge folders stutter the UI.
+List<OutgoingFile> expandPaths(List<String> paths) {
+  final out = <OutgoingFile>[];
+  for (final path in paths) {
+    switch (FileSystemEntity.typeSync(path)) {
+      case FileSystemEntityType.file:
+        out.add(OutgoingFile(path, p.basename(path), File(path).lengthSync()));
+      case FileSystemEntityType.directory:
+        final parent = p.dirname(path);
+        for (final e in Directory(path).listSync(recursive: true, followLinks: false)) {
+          if (e is! File) continue;
+          final segs = p.split(p.relative(e.path, from: parent));
+          if (segs.any((s) => s.startsWith('.'))) continue;
+          out.add(OutgoingFile(e.path, segs.join('/'), e.lengthSync()));
+        }
+      default:
+    }
+  }
+  return out;
+}
+
 class ShareSender {
+  /// The receiver refuses larger offers.
+  static const maxFiles = 5000;
+
   ShareSender(this._db, this._client);
 
   final AppDatabase _db;
@@ -78,10 +107,7 @@ class ShareSender {
   }
 
   OutgoingShare sendFiles(PeerDevice peer, List<String> paths) {
-    final files = [
-      for (final path in paths)
-        if (File(path).existsSync()) OutgoingFile(path, p.basename(path), File(path).lengthSync()),
-    ];
+    final files = expandPaths(paths);
     final share = OutgoingShare(peer: peer, files: files);
     _start(share, () => _runFiles(share));
     return share;
@@ -145,6 +171,9 @@ class ShareSender {
   }
 
   Future<void> _runFiles(OutgoingShare share) async {
+    if (share.files.length > maxFiles) {
+      throw Exception('That\'s ${share.files.length} files; send at most $maxFiles at a time.');
+    }
     // 1. Hash (off the UI thread) so the receiver can verify every byte.
     for (final f in share.files) {
       _checkCancel(share);

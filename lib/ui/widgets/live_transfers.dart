@@ -5,6 +5,7 @@ import '../../backup/backup_engine.dart';
 import '../../core/models.dart';
 import '../format.dart';
 import '../theme.dart';
+import '../pages/transfer_page.dart';
 import 'common.dart';
 
 /// "In progress": every transfer in either direction, on both devices.
@@ -38,9 +39,23 @@ class LiveTransfersSection extends StatelessWidget {
         final cards = <Widget>[
           if (backupOut) _BackupOutCard(app: app),
           for (final b in inBackups) _BackupInCard(backup: b),
-          if (!backupsOnly) for (final p in app.incoming.values) IncomingProgressCard(progress: p),
           if (!backupsOnly)
-            for (final s in outShares) OutgoingShareCard(share: s, onCancel: () => app.shares.cancel(s)),
+            for (final p in app.incoming.values)
+              IncomingProgressCard(
+                progress: p,
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute<void>(builder: (_) => TransferPage.incoming(app: app, incoming: p))),
+              ),
+          if (!backupsOnly)
+            for (final s in outShares)
+              OutgoingShareCard(
+                share: s,
+                onCancel: () => app.shares.cancel(s),
+                onTap: s.text != null
+                    ? null
+                    : () => Navigator.of(context)
+                        .push(MaterialPageRoute<void>(builder: (_) => TransferPage.outgoing(app: app, share: s))),
+              ),
         ];
         if (cards.isEmpty) return const SizedBox.shrink();
         return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

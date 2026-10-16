@@ -3,20 +3,26 @@ import 'dart:io';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
 import '../../app/app_controller.dart';
 import '../../core/models.dart';
 import '../../core/platform.dart';
+import '../../share/share_sender.dart';
 import '../format.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
 import '../widgets/live_transfers.dart';
+import 'transfer_page.dart';
 
 class _Picked {
-  _Picked(this.path, this.size);
+  _Picked(this.path, this.size, {this.files});
   final String path;
   final int size;
+
+  /// Set for a folder: how many files it holds.
+  final int? files;
   String get name => p.basename(path);
 }
 
@@ -61,13 +67,22 @@ class _SharePageState extends State<SharePage> {
   }
 
   /// Which picker is opening; the system sheet can take a second or two.
-  FileType? _opening;
+  /// A [FileType], or [_folder] for the folder picker.
+  Object? _opening;
+  static const _folder = 'folder';
 
   void _addPaths(Iterable<String> paths) {
     setState(() {
       for (final path in paths) {
+        if (_picked.any((x) => x.path == path)) continue;
         final f = File(path);
-        if (f.existsSync() && !_picked.any((x) => x.path == path)) _picked.add(_Picked(path, f.lengthSync()));
+        if (f.existsSync()) {
+          _picked.add(_Picked(path, f.lengthSync()));
+        } else if (Directory(path).existsSync()) {
+          final inside = expandPaths([path]);
+          if (inside.isEmpty) continue;
+          _picked.add(_Picked(path, inside.fold(0, (a, f) => a + f.size), files: inside.length));
+        }
       }
     });
   }
@@ -88,25 +103,32 @@ class _SharePageState extends State<SharePage> {
     }
   }
 
-  Future<void> _sendTo(PeerDevice peer) async {
-    if (_picked.isEmpty && _texts.isEmpty) return _deviceActions(peer);
-    if (_picked.isNotEmpty) app.sendFiles(peer, _picked.map((f) => f.path).toList());
-    for (final t in _texts) {
-      app.sendText(peer, t);
+  Future<void> _pickFolder() async {
+    if (_opening != null) return;
+    setState(() => _opening = _folder);
+    try {
+      final dir = await FilePicker.getDirectoryPath(dialogTitle: 'Choose a folder to send');
+      if (dir != null) _addPaths([dir]);
+    } catch (e) {
+      _toast("Couldn't open the folder picker. Check Settings › Permissions. ($e)");
+    } finally {
+      if (mounted) setState(() => _opening = null);
     }
-    setState(() {
-      _picked.clear();
-      _texts.clear();
-    });
-    _toast('Sending to ${peer.name}.');
   }
 
-  Future<void> _sendText(PeerDevice peer) async {
-    final controller = TextEditingController();
+  Future<void> _addText() async {
+    final clip = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim();
+    if (!mounted) return;
+    final text = await _askText(title: 'Text to send', initial: clip, action: 'Add');
+    if (text != null) setState(() => _texts.add(text));
+  }
+
+  Future<String?> _askText({required String title, required String action, String? initial}) async {
+    final controller = TextEditingController(text: initial);
     final text = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Send text to ${peer.name}'),
+        title: Text(title),
         content: SizedBox(
           width: 420,
           child: TextField(
@@ -119,11 +141,31 @@ class _SharePageState extends State<SharePage> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text('Send')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, controller.text), child: Text(action)),
         ],
       ),
     );
-    if (text == null || text.trim().isEmpty) return;
+    return text == null || text.trim().isEmpty ? null : text;
+  }
+
+  Future<void> _sendTo(PeerDevice peer) async {
+    if (_picked.isEmpty && _texts.isEmpty) return _deviceActions(peer);
+    final share = _picked.isEmpty ? null : app.sendFiles(peer, _picked.map((f) => f.path).toList());
+    for (final t in _texts) {
+      app.sendText(peer, t);
+    }
+    setState(() {
+      _picked.clear();
+      _texts.clear();
+    });
+    if (share == null) return _toast('Sent to ${peer.name}.');
+    await Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (_) => TransferPage.outgoing(app: app, share: share)));
+  }
+
+  Future<void> _sendText(PeerDevice peer) async {
+    final text = await _askText(title: 'Send text to ${peer.name}', action: 'Send');
+    if (text == null) return;
     app.sendText(peer, text);
     _toast('Text sent to ${peer.name}.');
   }
@@ -278,6 +320,14 @@ class _SharePageState extends State<SharePage> {
                   label: 'Photos & videos',
                   busy: _opening == FileType.media,
                   onTap: () => _pick(FileType.media)),
+              // iOS hands out folders as security-scoped URLs the app can't walk with plain file APIs.
+              if (!Platform.isIOS)
+                _PickChip(
+                    icon: Icons.folder_outlined,
+                    label: 'Folder',
+                    busy: _opening == _folder,
+                    onTap: _pickFolder),
+              _PickChip(icon: Icons.notes_rounded, label: 'Text', onTap: _addText),
             ]),
             for (final t in _texts)
               ListTile(
@@ -296,8 +346,8 @@ class _SharePageState extends State<SharePage> {
                 padding: const EdgeInsets.only(top: 14),
                 child: Text(
                   Caps.isDesktop
-                      ? 'Drop files here or pick them, then click a device. To send text, use a device\'s menu.'
-                      : 'Pick files, then tap a device below. To send text, tap a device and choose "Send text".',
+                      ? 'Drop files or folders here, or pick them, then click a device.'
+                      : 'Pick what to send, then tap a device below.',
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               )
@@ -307,9 +357,11 @@ class _SharePageState extends State<SharePage> {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(fileIcon(f.name)),
+                  leading: Icon(f.files != null ? Icons.folder_rounded : fileIcon(f.name)),
                   title: Text(f.name, overflow: TextOverflow.ellipsis),
-                  subtitle: Text(formatBytes(f.size)),
+                  subtitle: Text(f.files != null
+                      ? '${f.files} file${f.files == 1 ? '' : 's'} · ${formatBytes(f.size)}'
+                      : formatBytes(f.size)),
                   trailing: IconButton(
                     tooltip: 'Remove',
                     icon: const Icon(Icons.close_rounded, size: 18),

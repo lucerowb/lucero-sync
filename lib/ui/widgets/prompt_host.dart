@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../app/app_controller.dart';
 import '../format.dart';
 import '../open.dart';
+import '../pages/transfer_page.dart';
 import '../pairing.dart';
 
 /// Shows the controller's pending prompts (pairing requests, file offers,
@@ -58,7 +59,26 @@ class _PromptHostState extends State<PromptHost> {
       prompt.answer(false); // no-op if already answered
       _showing = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _check());
+      if (prompt is ShareRequest) prompt.result.then((ok) => ok ? _openIncoming(prompt.prompt.offerId) : null);
     });
+  }
+
+  /// After Accept, show the file-by-file progress (the server registers the
+  /// transfer just after it learns the answer).
+  void _openIncoming(String offerId) {
+    final app = widget.app;
+    void open() {
+      final p = app.incoming[offerId];
+      if (p == null) return;
+      app.removeListener(open);
+      widget.navigatorKey.currentState
+          ?.push(MaterialPageRoute<void>(builder: (_) => TransferPage.incoming(app: app, incoming: p)));
+    }
+
+    app.addListener(open);
+    open();
+    // Small transfers can finish before they're ever registered here.
+    Future<void>.delayed(const Duration(seconds: 10), () => app.removeListener(open));
   }
 
   @override

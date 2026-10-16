@@ -107,3 +107,36 @@ class LiveSummary {
         'items': [for (final i in items) i.toJson()],
       };
 }
+
+/// Transfer speed, smoothed so the number doesn't jitter, and time left.
+class RateMeter {
+  DateTime? _at;
+  int _bytes = 0;
+  double? _rate;
+
+  /// Call with the running total of bytes moved.
+  void add(int totalBytes) {
+    final now = DateTime.now();
+    final at = _at;
+    if (at == null || totalBytes < _bytes) {
+      _at = now;
+      _bytes = totalBytes;
+      return;
+    }
+    final ms = now.difference(at).inMilliseconds;
+    if (ms < 500) return;
+    final sample = (totalBytes - _bytes) * 1000 / ms;
+    _rate = _rate == null ? sample : _rate! * 0.7 + sample * 0.3;
+    _at = now;
+    _bytes = totalBytes;
+  }
+
+  /// Bytes per second, or null before there's a measurement.
+  double? get bytesPerSecond => _rate;
+
+  Duration? timeLeft(int remainingBytes) {
+    final r = _rate;
+    if (r == null || r < 1) return null;
+    return Duration(seconds: (remainingBytes / r).ceil());
+  }
+}

@@ -35,6 +35,7 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
   - Every file is SHA-256-verified before it's saved.
 - **Never duplicates.** Each backup is checked against a ledger and against content hashes.
 - **Resumes mid-file** after Wi-Fi drops, restarts or address changes.
+- **Send folders**, keeping their structure, and follow every file on a **transfer page** with speed and time left.
 - **Live progress on both devices.** The sender and the receiver both see every transfer and backup as it happens.
 - **Ask or auto-accept** incoming files, per device.
 - **Share from any app.** Lucero Sync appears in the iPhone and Android share sheets.

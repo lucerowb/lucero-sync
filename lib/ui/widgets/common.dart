@@ -230,9 +230,12 @@ class NearbyCard extends StatelessWidget {
 
 /// Progress card for an outgoing share.
 class OutgoingShareCard extends StatelessWidget {
-  const OutgoingShareCard({super.key, required this.share, required this.onCancel});
+  const OutgoingShareCard({super.key, required this.share, required this.onCancel, this.onTap});
   final OutgoingShare share;
   final VoidCallback onCancel;
+
+  /// Opens the file-by-file view.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -250,27 +253,31 @@ class OutgoingShareCard extends StatelessWidget {
           ShareState.failed => (share.error ?? 'Failed', theme.colorScheme.error),
         };
         return Card(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Icon(share.text != null ? Icons.notes_rounded : Icons.north_east_rounded, size: 20, color: theme.colorScheme.primary),
-                const SizedBox(width: 10),
-                Expanded(child: Text(share.title, style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis)),
-                if (share.isActive) IconButton(tooltip: 'Cancel', onPressed: onCancel, icon: const Icon(Icons.close_rounded)),
-              ]),
-              const SizedBox(height: 6),
-              if (share.isActive)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: share.state == ShareState.sending ? share.fraction : null,
-                    minHeight: 6,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Icon(share.text != null ? Icons.notes_rounded : Icons.north_east_rounded, size: 20, color: theme.colorScheme.primary),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(share.title, style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis)),
+                  if (share.isActive) IconButton(tooltip: 'Cancel', onPressed: onCancel, icon: const Icon(Icons.close_rounded)),
+                ]),
+                const SizedBox(height: 6),
+                if (share.isActive)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: share.state == ShareState.sending ? share.fraction : null,
+                      minHeight: 6,
+                    ),
                   ),
-                ),
-              const SizedBox(height: 6),
-              Text(label, style: theme.textTheme.bodySmall?.copyWith(color: color ?? theme.colorScheme.onSurfaceVariant)),
-            ]),
+                const SizedBox(height: 6),
+                Text(label, style: theme.textTheme.bodySmall?.copyWith(color: color ?? theme.colorScheme.onSurfaceVariant)),
+              ]),
+            ),
           ),
         );
       },
@@ -279,35 +286,42 @@ class OutgoingShareCard extends StatelessWidget {
 }
 
 class IncomingProgressCard extends StatelessWidget {
-  const IncomingProgressCard({super.key, required this.progress});
+  const IncomingProgressCard({super.key, required this.progress, this.onTap});
   final IncomingProgress progress;
+
+  /// Opens the file-by-file view.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final p = progress;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(Icons.south_west_rounded, size: 20, color: theme.colorScheme.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text('${p.title} from ${p.fromName}',
-                  style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Icon(Icons.south_west_rounded, size: 20, color: theme.colorScheme.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text('${p.title} from ${p.fromName}',
+                    style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis),
+              ),
+            ]),
+            const SizedBox(height: 10),
+            ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: p.fraction, minHeight: 6)),
+            const SizedBox(height: 6),
+            Text(
+              p.stalled
+                  ? 'Paused at ${formatBytes(p.received)} of ${formatBytes(p.total)} · waiting for ${p.fromName}'
+                  : 'Receiving · ${p.filesDone} of ${p.files.length} files · ${formatBytes(p.received)} of ${formatBytes(p.total)}',
+              style: theme.textTheme.bodySmall?.copyWith(color: p.stalled ? Brand.amber : theme.colorScheme.onSurfaceVariant),
             ),
           ]),
-          const SizedBox(height: 10),
-          ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: p.fraction, minHeight: 6)),
-          const SizedBox(height: 6),
-          Text(
-            p.stalled
-                ? 'Paused at ${formatBytes(p.received)} of ${formatBytes(p.total)} · waiting for ${p.fromName}'
-                : 'Receiving · ${formatBytes(p.received)} of ${formatBytes(p.total)}',
-            style: theme.textTheme.bodySmall?.copyWith(color: p.stalled ? Brand.amber : theme.colorScheme.onSurfaceVariant),
-          ),
-        ]),
+        ),
       ),
     );
   }

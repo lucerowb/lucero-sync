@@ -53,15 +53,26 @@ class TextReceived extends AppPrompt {
   final String text;
 }
 
-/// Live progress of a file transfer coming in.
+/// Live progress of a file transfer coming in, file by file.
 class IncomingProgress {
-  IncomingProgress(this.offerId, this.fromName, this.total, this.title);
+  IncomingProgress(this.offerId, this.fromName, this.files) : title = transferTitle([for (final f in files) f.name]);
   final String offerId;
   final String fromName;
   final String title;
-  int received = 0;
-  int total;
+  final List<ShareFile> files;
+
+  /// Bytes on disk per file id.
+  final fileBytes = <String, int>{};
+  final rate = RateMeter();
   DateTime updatedAt = DateTime.now();
+
+  /// Set when the transfer ends (done, cancelled by the sender, failed).
+  TransferStatus? status;
+  List<String> paths = const [];
+
+  int get total => files.fold(0, (a, f) => a + f.size);
+  int get received => files.fold(0, (a, f) => a + (fileBytes[f.id] ?? 0));
+  int get filesDone => files.where((f) => (fileBytes[f.id] ?? -1) >= f.size).length;
 
   /// No bytes for a while: the sender probably lost the connection.
   bool get stalled => DateTime.now().difference(updatedAt) > const Duration(seconds: 30);
@@ -407,8 +418,8 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   }
 
   @override
-  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) {
-    incoming[offerId] = IncomingProgress(offerId, from.name, totalBytes, title);
+  void incomingStarted(String offerId, PeerDevice from, List<ShareFile> files) {
+    incoming[offerId] = IncomingProgress(offerId, from.name, files);
     notifyListeners();
   }
 
@@ -416,13 +427,12 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   void textReceived(PeerDevice from, String text) => unawaited(_ask(TextReceived(from, text)));
 
   @override
-  void incomingProgress(String offerId, int receivedBytes, int totalBytes) {
+  void incomingProgress(String offerId, String fileId, int fileBytes) {
     final p = incoming[offerId];
     if (p == null) return;
-    p
-      ..received = receivedBytes
-      ..total = totalBytes
-      ..updatedAt = DateTime.now();
+    p.fileBytes[fileId] = fileBytes;
+    p.updatedAt = DateTime.now();
+    p.rate.add(p.received);
     notifyListeners();
   }
 
@@ -483,10 +493,10 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
 
   @override
   void webUploadStarted(String id, String from, int total, String name) =>
-      incomingStarted(id, _browser(from), total, name);
+      incomingStarted(id, _browser(from), [ShareFile(id: 'f', name: name, size: total, sha256: '')]);
 
   @override
-  void webUploadProgress(String id, int received, int total) => incomingProgress(id, received, total);
+  void webUploadProgress(String id, int received, int total) => incomingProgress(id, 'f', received);
 
   @override
   Future<void> webUploadFinished(TransferRecord record) async {
@@ -630,7 +640,10 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
 
   @override
   void incomingFinished(TransferRecord record) {
-    incoming.remove(record.id);
+    // An open transfer page keeps the object, so give it the outcome.
+    incoming.remove(record.id)
+      ?..status = record.status
+      ..paths = record.paths;
     history = [record, ...history.where((h) => h.id != record.id)];
     notifyListeners();
   }

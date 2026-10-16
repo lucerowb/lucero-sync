@@ -420,3 +420,15 @@ class BackupRunStatus {
         runId: run, state: state, done: done, total: total, file: clip(m['file']), message: clip(m['message']));
   }
 }
+
+/// "report.pdf", "report.pdf and 2 more", or "Trip · 40 files" when
+/// everything is inside one sent folder.
+String transferTitle(List<String> names) {
+  if (names.isEmpty) return 'Files';
+  final tops = names.map((n) => n.split('/').first).toSet();
+  if (tops.length == 1 && names.first.contains('/')) {
+    return '${tops.first} · ${names.length} file${names.length == 1 ? '' : 's'}';
+  }
+  final first = names.first.split('/').last;
+  return names.length == 1 ? first : '$first and ${names.length - 1} more';
+}

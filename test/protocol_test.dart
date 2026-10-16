@@ -28,6 +28,7 @@ class FakeDelegate implements ServerDelegate {
   final runStatuses = <BackupRunStatus>[];
   final fileProgress = <(String, int, int)>[];
   final started = <String>[];
+  final progress = <(String, String, int)>[];
 
   @override
   Future<bool> approvePairing(PairingPrompt prompt) async {
@@ -53,9 +54,9 @@ class FakeDelegate implements ServerDelegate {
   @override
   void peersChanged() {}
   @override
-  void incomingProgress(String offerId, int receivedBytes, int totalBytes) {}
+  void incomingProgress(String offerId, String fileId, int fileBytes) => progress.add((offerId, fileId, fileBytes));
   @override
-  void incomingStarted(String offerId, PeerDevice from, int totalBytes, String title) => started.add(offerId);
+  void incomingStarted(String offerId, PeerDevice from, List<ShareFile> files) => started.add(offerId);
   @override
   void backupStatus(PeerDevice from, BackupRunStatus status) => runStatuses.add(status);
   @override
@@ -306,6 +307,27 @@ void main() {
       expect((await b.db.listTransfers()).single.status, TransferStatus.done);
     });
 
+    test('sends a folder with its structure; a second copy lands next to it', () async {
+      final (bSeesA, _) = await pair();
+      final trip = Directory('${root.path}/src/Trip/Day 1')..createSync(recursive: true);
+      final img = await randomFile(trip, 'IMG.jpg', 70 * 1024);
+      await randomFile(Directory('${root.path}/src/Trip'), 'notes.txt', 300);
+      await randomFile(Directory('${root.path}/src/Trip'), '.DS_Store', 10);
+      final sender = ShareSender(b.db, b.client);
+
+      for (final copy in ['Trip', 'Trip (1)']) {
+        final share = sender.sendFiles(bSeesA, ['${root.path}/src/Trip']);
+        expect(share.files.map((f) => f.name), unorderedEquals(['Trip/Day 1/IMG.jpg', 'Trip/notes.txt']));
+        expect(share.title, 'Trip · 2 files');
+        await _until(() => !share.isActive);
+        expect(share.state, ShareState.done, reason: share.error);
+        final got = '${a.storage.receivedRoot.path}/$copy/Day 1/IMG.jpg';
+        expect(await sha256OfFile(got), await sha256OfFile(img.path));
+        expect(File('${a.storage.receivedRoot.path}/$copy/notes.txt').existsSync(), isTrue);
+      }
+      expect(a.delegate.progress.where((e) => e.$2 == 'f0').last.$3, greaterThan(0), reason: 'per-file progress');
+    });
+
     test('declined offers send nothing', () async {
       final (bSeesA, _) = await pair();
       a.delegate.acceptShares = false;
@@ -351,6 +373,14 @@ void main() {
       expect(share.state, ShareState.done, reason: share.error);
       expect(b.delegate.texts.single, 'back at you');
     });
+  });
+
+  test('sanitizeRelativePath keeps folders but never leaves the destination', () {
+    expect(sanitizeRelativePath('Trip/Day 1/IMG.jpg'), 'Trip/Day 1/IMG.jpg');
+    expect(sanitizeRelativePath('../../etc/passwd'), 'etc/passwd');
+    expect(sanitizeRelativePath(r'a\..\..\b.txt'), 'a/b.txt');
+    expect(sanitizeRelativePath('/abs/./.ssh/key'), 'abs/ssh/key');
+    expect(sanitizeRelativePath('..'), 'file');
   });
 
   test('sanitizeFilename blocks traversal and hidden files', () {

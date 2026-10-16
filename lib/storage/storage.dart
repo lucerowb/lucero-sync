@@ -113,7 +113,27 @@ class Storage {
       File(p.join(receivedRoot.path, '.lucero_tmp', 'share-$offerId-$fileId.part'));
 
   /// Moves a verified shared file into the received folder; returns its path.
-  Future<String> commitShare(File part, String filename) async => (await _commit(part, receivedRoot, filename)).path;
+  ///
+  /// [relPath] may contain folders (from a folder transfer, already passed
+  /// through [sanitizeRelativePath]). [topDirs] maps each sent top-level
+  /// folder to the one used here, so a folder sent twice lands as
+  /// "Photos (1)" instead of mixing into the first copy.
+  Future<String> commitShare(File part, String relPath, {Map<String, String>? topDirs}) async {
+    final segs = relPath.split('/');
+    if (segs.length == 1) return (await _commit(part, receivedRoot, relPath)).path;
+    final top = topDirs?[segs.first] ?? await _uniqueDir(segs.first);
+    topDirs?[segs.first] = top;
+    final folder = Directory(p.joinAll([receivedRoot.path, top, ...segs.sublist(1, segs.length - 1)]));
+    return (await _commit(part, folder, segs.last)).path;
+  }
+
+  Future<String> _uniqueDir(String name) async {
+    var candidate = name;
+    for (var n = 1; await Directory(p.join(receivedRoot.path, candidate)).exists(); n++) {
+      candidate = '$name ($n)';
+    }
+    return candidate;
+  }
 
   Future<File> _commit(File part, Directory folder, String filename) async {
     await folder.create(recursive: true);
@@ -145,6 +165,21 @@ class Storage {
     if (d.path.startsWith(androidRoot)) return d.path.substring(androidRoot.length);
     return d.path;
   }
+}
+
+/// Like [sanitizeFilename] for each folder level of a path sent with a
+/// folder transfer ("Trip/Day 1/IMG.jpg"). `.` and `..` levels are dropped,
+/// so the result always stays inside the destination folder.
+String sanitizeRelativePath(String raw) {
+  final segs = raw
+      .replaceAll('\\', '/')
+      .split('/')
+      .where((s) => s.trim().isNotEmpty && s != '.' && s != '..')
+      .map(sanitizeFilename)
+      .toList();
+  if (segs.isEmpty) return 'file';
+  // shortcut: deeper trees are flattened into their 16th level; raise if anyone hits it.
+  return (segs.length > 16 ? [...segs.take(15), segs.last] : segs).join('/');
 }
 
 /// Strip path separators and control characters so a sender can't write

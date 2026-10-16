@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **Transfer page:** tap any transfer (or send something) to see every file with its own progress, plus overall speed and time left. The receiver opens it automatically after tapping Accept, and it stays open with the result and a **Show files** button.
+- **Send folders** (Android, Mac, Windows, Linux): pick or drop a folder and it arrives with the same structure. Sending the same folder again lands next to the first as "Name (1)".
+- **Text** button on Share: add a note or link (pre-filled from the clipboard) and send it along with files.
+
 ## 0.3.0
 
 ### New
