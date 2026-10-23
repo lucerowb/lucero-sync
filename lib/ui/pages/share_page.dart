@@ -10,11 +10,13 @@ import '../../app/app_controller.dart';
 import '../../app/updates.dart';
 import '../../core/models.dart';
 import '../../core/platform.dart';
+import '../../share/owly.dart';
 import '../../share/share_sender.dart';
 import '../format.dart';
 import '../open.dart';
 import '../pairing.dart';
 import '../widgets/common.dart';
+import '../system_share.dart';
 import '../widgets/live_transfers.dart';
 import 'transfer_page.dart';
 
@@ -44,9 +46,13 @@ class _SharePageState extends State<SharePage> {
   /// Text/links shared into the app from another app, sent with the files.
   final _texts = <String>[];
 
+  /// owly (AirDrop on Linux) is installed.
+  bool _owly = false;
+
   @override
   void initState() {
     super.initState();
+    Owly.installed().then((v) => mounted && v ? setState(() => _owly = true) : null);
     app.mobile.incoming.addListener(_takeShared);
     _takeShared();
   }
@@ -163,6 +169,20 @@ class _SharePageState extends State<SharePage> {
     if (share == null) return _toast('Sent to ${peer.name}.');
     await Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => TransferPage.outgoing(app: app, share: share)));
+  }
+
+  /// To someone without Lucero Sync: AirDrop, Quick Share and friends.
+  Future<void> _sendElsewhere() async {
+    // Only AirDrop on a Mac takes folders as they are; elsewhere send what's inside.
+    final paths = [for (final f in _picked) f.path];
+    final sent = await shareElsewhere(context,
+        paths: Platform.isMacOS ? paths : [for (final f in expandPaths(paths)) f.path], texts: List.of(_texts));
+    if (sent && mounted) {
+      setState(() {
+        _picked.clear();
+        _texts.clear();
+      });
+    }
   }
 
   Future<void> _sendText(PeerDevice peer) async {
@@ -440,6 +460,10 @@ class _SharePageState extends State<SharePage> {
         ),
         const SizedBox(height: 10),
       ],
+      if (systemShareLabel(owly: _owly) case final label? when selecting || _texts.isNotEmpty) ...[
+        _ElsewhereCard(label: label, onTap: _sendElsewhere),
+        const SizedBox(height: 10),
+      ],
       if (nearby.isNotEmpty) ...[
         if (peers.isNotEmpty) const SectionLabel('Nearby'),
         for (final d in nearby) ...[
@@ -592,6 +616,34 @@ class _UpdateCard extends StatelessWidget {
             ]),
           ),
         ]),
+      ),
+    );
+  }
+}
+
+/// The quiet extra target under your devices while something is picked.
+class _ElsewhereCard extends StatelessWidget {
+  const _ElsewhereCard({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      color: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(Icons.wifi_tethering_rounded, color: theme.colorScheme.onSurfaceVariant),
+        title: Text(label),
+        subtitle: const Text('Send to anyone nearby, even without Lucero Sync'),
+        trailing: Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }

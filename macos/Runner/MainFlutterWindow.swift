@@ -36,6 +36,17 @@ class LuceroPermissions: NSObject, FlutterPlugin {
       AVCaptureDevice.requestAccess(for: .video) { _ in
         DispatchQueue.main.async { result(Self.describe(AVCaptureDevice.authorizationStatus(for: .video))) }
       }
+    case "airDrop":
+      // Opens AirDrop's own window with these files (and text); false if AirDrop can't take them.
+      let args = call.arguments as? [String: Any] ?? [:]
+      var items: [Any] = ((args["paths"] as? [String]) ?? []).map { URL(fileURLWithPath: $0) }
+      items += (args["texts"] as? [String]) ?? []
+      guard let service = NSSharingService(named: .sendViaAirDrop), !items.isEmpty, service.canPerform(withItems: items) else {
+        result(false)
+        return
+      }
+      service.perform(withItems: items)
+      result(true)
     case "activateApp":
       NSApp.activate(ignoringOtherApps: true)
       result(nil)

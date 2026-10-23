@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_controller.dart';
 import '../../core/models.dart';
+import '../../core/platform.dart';
+import '../../share/owly.dart';
 import '../../share/share_sender.dart';
 import '../format.dart';
 import '../open.dart';
+import '../system_share.dart';
 import '../theme.dart';
 
 /// One transfer, file by file: overall progress, speed, time left, and the
@@ -99,11 +102,26 @@ class TransferPage extends StatelessWidget {
                       ],
                       if (i != null && i.status == TransferStatus.done && i.paths.isNotEmpty) ...[
                         const SizedBox(height: 12),
-                        FilledButton.tonalIcon(
-                          onPressed: () => openReceived(context, i.paths),
-                          icon: const Icon(Icons.folder_open_rounded),
-                          label: const Text('Show files'),
-                        ),
+                        Wrap(spacing: 8, runSpacing: 8, children: [
+                          FilledButton.tonalIcon(
+                            onPressed: () => openReceived(context, i.paths),
+                            icon: const Icon(Icons.folder_open_rounded),
+                            label: const Text('Show files'),
+                          ),
+                          // On phones "Show files" already opens the share sheet.
+                          if (Caps.isDesktop)
+                            FutureBuilder(
+                              future: Owly.installed(),
+                              builder: (context, owly) => switch (systemShareLabel(owly: owly.data ?? false)) {
+                                final label? => OutlinedButton.icon(
+                                    onPressed: () => shareElsewhere(context, paths: i.paths),
+                                    icon: const Icon(Icons.wifi_tethering_rounded),
+                                    label: Text(label),
+                                  ),
+                                null => const SizedBox.shrink(),
+                              },
+                            ),
+                        ]),
                       ],
                     ],
                   ),

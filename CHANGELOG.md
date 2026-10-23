@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### New
+- **AirDrop, Quick Share & more:** once you've picked something, an extra option under your devices sends it to anyone nearby through the system's own sharing. It opens AirDrop directly on a Mac, Quick Share on Android, and Nearby Sharing on Windows. On Linux it appears when [owly](https://github.com/t4t5/owly) is installed and sends to iPhones and Macs over AirDrop. On a computer, finished incoming transfers have the same button.
+- **Android saves to `Download/LuceroSync`** without needing All files access, so any file manager can open received files. Backups go to `Download/LuceroSync/Backups`, or to `Pictures/LuceroSync` with All files access so they appear in the gallery. Files already received stay where they were.
 - **Update alerts:** the app checks GitHub for a new release when it opens and every 12 hours, and shows a banner with a download link (on iPhone it points you to AltStore or SideStore). Turn it off in Settings › About.
 
 ### Faster

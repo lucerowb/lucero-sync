@@ -72,7 +72,7 @@ class Permissions {
         PermissionItem(
           id: 'files',
           title: 'All files access',
-          reason: 'Save received photos to Pictures and files to Downloads, so they show up in your gallery.',
+          reason: 'Save backed-up photos to Pictures, so they show up in your gallery.',
           icon: Icons.folder_special_outlined,
           state: await Storage.hasAllFilesAccess() ? PermState.granted : PermState.denied,
         ),

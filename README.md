@@ -39,6 +39,7 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
 - **Live progress on both devices.** The sender and the receiver both see every transfer and backup as it happens.
 - **Ask or auto-accept** incoming files, per device.
 - **Share from any app.** Lucero Sync appears in the iPhone and Android share sheets.
+- **AirDrop & Quick Share built in.** Send to people without the app through AirDrop, Quick Share or Nearby Sharing, and on Linux through [owly](https://github.com/t4t5/owly).
 - **Dynamic Island & Lock Screen** progress on iPhone (Live Activity, iOS 16.2+).
 - **Menu bar / system tray** on Mac, Windows and Linux: progress, quick "Send files to…", and the window can be closed while it keeps receiving.
 - **Web access:** any browser on your Wi-Fi can send to and download from a device, after entering a code shown on it. No app needed on that computer.

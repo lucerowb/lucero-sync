@@ -16,23 +16,21 @@ import '../core/db.dart';
 ///
 /// | Platform | Backups                          | Received files                |
 /// |----------|----------------------------------|-------------------------------|
-/// | Android  | Pictures/LuceroSync *            | Download/LuceroSync *         |
+/// | Android  | Pictures/LuceroSync *            | Download/LuceroSync           |
 /// | iOS      | Files › Lucero Sync › Backups    | Files › Lucero Sync › Received|
 /// | Desktop  | ~/Pictures/Lucero Sync           | ~/Downloads/Lucero Sync       |
 ///
-/// \* with "All files access"; otherwise the app's external files folder.
+/// \* with "All files access"; otherwise Download/LuceroSync/Backups (or the
+/// app's own folder on the rare device that refuses writes to Download/).
 /// Desktop and Android folders can be changed in Settings.
 ///
 /// In-flight uploads are `.part` files under `.lucero_tmp/` (with `.nomedia`)
 /// next to their destination, so the final rename never crosses filesystems.
 class Storage {
-  Storage({required this.backupsRoot, required this.receivedRoot, this.publicMedia = false});
+  Storage({required this.backupsRoot, required this.receivedRoot});
 
   final Directory backupsRoot;
   final Directory receivedRoot;
-
-  /// True when backups are in a folder the Android media scanner indexes.
-  final bool publicMedia;
 
   static const _channel = MethodChannel('lucero_sync/storage');
 
@@ -52,33 +50,49 @@ class Storage {
       } catch (_) {}
     }
     final custom = (await db.getValue(kBackupsDir), await db.getValue(kReceivedDir));
-    final (backups, received, public) = await _defaults();
+    final (backups, received) = await _defaults();
     final storage = Storage(
       backupsRoot: Directory(custom.$1 ?? backups),
       receivedRoot: Directory(custom.$2 ?? received),
-      publicMedia: public && custom.$1 == null,
     );
     await storage.ensureDirs();
     return storage;
   }
 
-  static Future<(String, String, bool)> _defaults() async {
+  static Future<(String, String)> _defaults() async {
     if (Platform.isAndroid) {
       if (await hasAllFilesAccess()) {
         final pictures = await _channel.invokeMethod<String>('picturesDir');
         final downloads = await _channel.invokeMethod<String>('downloadsDir');
-        return (p.join(pictures!, 'LuceroSync'), p.join(downloads!, 'LuceroSync'), true);
+        return (p.join(pictures!, 'LuceroSync'), p.join(downloads!, 'LuceroSync'));
       }
+      // Android 11+ lets any app create files in Download/ (not Pictures/,
+      // which refuses the non-media .part files), so both live there.
+      final root = p.join((await _channel.invokeMethod<String>('downloadsDir'))!, 'LuceroSync');
+      if (await _writable(root)) return (p.join(root, 'Backups'), root);
+      // Some devices still refuse; the app's own folder always works.
       final ext = (await getExternalStorageDirectory())!.path;
-      return (p.join(ext, 'LuceroSync', 'Backups'), p.join(ext, 'LuceroSync', 'Received'), false);
+      return (p.join(ext, 'LuceroSync', 'Backups'), p.join(ext, 'LuceroSync', 'Received'));
     }
     if (Platform.isIOS) {
       final docs = (await getApplicationDocumentsDirectory()).path;
-      return (p.join(docs, 'Backups'), p.join(docs, 'Received'), false);
+      return (p.join(docs, 'Backups'), p.join(docs, 'Received'));
     }
     final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '.';
     final downloads = (await getDownloadsDirectory())?.path ?? p.join(home, 'Downloads');
-    return (p.join(home, 'Pictures', 'Lucero Sync'), p.join(downloads, 'Lucero Sync'), false);
+    return (p.join(home, 'Pictures', 'Lucero Sync'), p.join(downloads, 'Lucero Sync'));
+  }
+
+  static Future<bool> _writable(String dir) async {
+    try {
+      final probe = File(p.join(dir, '.lucero_tmp', '.probe'));
+      await probe.parent.create(recursive: true);
+      await probe.writeAsString('ok');
+      await probe.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> ensureDirs() async {
@@ -153,9 +167,9 @@ class Storage {
     return part.rename(target.path);
   }
 
-  /// Makes new media show up in Android's Gallery / Google Photos.
+  /// Makes new files show up in Android's Gallery, Files app and other apps.
   Future<void> notifyMediaScanner(String absolutePath) async {
-    if (Platform.isAndroid && publicMedia) {
+    if (Platform.isAndroid) {
       await _channel.invokeMethod('scanFile', {'path': absolutePath});
     }
   }

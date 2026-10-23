@@ -81,7 +81,7 @@
       <h2 id="android">Install on Android</h2>
       <ol>
         <li>On the phone, download <a href="https://github.com/lucerowb/lucero-sync/releases/latest/download/lucero-sync.apk"><code>lucero-sync.apk</code></a> and open it. If asked, allow <strong>Install unknown apps</strong> for your browser, then tap <strong>Install</strong>.</li>
-        <li>Open Lucero Sync. Under <strong>Settings › Storage</strong>, tap <strong>Grant</strong> and switch on <strong>All files access</strong>. This saves backups to <code>Pictures/LuceroSync</code> and received files to <code>Download/LuceroSync</code>, where your gallery and file manager can see them.</li>
+        <li>Open Lucero Sync. Received files go to <code>Download/LuceroSync</code>, which any file manager can open. To have backups show up in your gallery too, go to <strong>Settings › Storage</strong>, tap <strong>Grant</strong> and switch on <strong>All files access</strong>: backups then go to <code>Pictures/LuceroSync</code> instead of <code>Download/LuceroSync/Backups</code>.</li>
         <li>Go to <strong>Settings › Apps › Lucero Sync › Battery</strong> and choose <strong>Unrestricted</strong>, so Android doesn't pause long transfers.</li>
       </ol>
 
@@ -159,6 +159,10 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
       <p><strong>Text and links:</strong> tap <strong>⋮</strong> on a device and choose <strong>Send text</strong>. The other device shows it with <strong>Copy</strong> and <strong>Open link</strong> buttons.</p>
       <p><strong>Skip the confirmation:</strong> tap ⋮ › <strong>Accept files automatically</strong>, or tick <strong>Always accept from…</strong> on an incoming request. Do this only for your own devices.</p>
 
+      <h2 id="airdrop">AirDrop, Quick Share &amp; more</h2>
+      <p>To send to someone who doesn't have Lucero Sync, pick what to send as usual, then tap <strong>AirDrop &amp; more</strong> under your devices (<strong>Quick Share &amp; more</strong> on Android, <strong>Nearby Sharing &amp; more</strong> on Windows). It opens your device's own sharing: on a Mac, straight to AirDrop. On a computer, a finished incoming transfer has the same button, to pass the files on.</p>
+      <p><strong>Linux:</strong> install <a href="https://github.com/t4t5/owly">owly</a> and the button appears as <strong>AirDrop</strong>. It finds nearby iPhones, iPads and Macs and sends to them directly. The other device's AirDrop must be set to <strong>Everyone for 10 minutes</strong>, and depending on your Wi-Fi card, Wi-Fi may pause briefly while AirDrop runs.</p>
+
       <h2 id="from-apps">Share from other apps</h2>
       <p>In Photos, Files, a browser or any other app, tap <strong>Share</strong> and choose <strong>Lucero Sync</strong>. Lucero Sync opens with the items ready; tap the device to send them to. On iPhone, if Lucero Sync isn't in the first row, tap <strong>More</strong> and add it to your favourites.</p>
 
@@ -200,7 +204,7 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
       <table>
         <thead><tr><th>Device</th><th>Photo backups</th><th>Received files</th></tr></thead>
         <tbody>
-          <tr><td>Android</td><td><code>Pictures/LuceroSync/YYYY/MM</code></td><td><code>Download/LuceroSync</code></td></tr>
+          <tr><td>Android</td><td><code>Download/LuceroSync/Backups/YYYY/MM</code>, or <code>Pictures/LuceroSync/YYYY/MM</code> with All files access</td><td><code>Download/LuceroSync</code></td></tr>
           <tr><td>iPhone / iPad</td><td>Files › On My iPhone › Lucero Sync › Backups</td><td>… › Lucero Sync › Received</td></tr>
           <tr><td>Mac, Windows, Linux</td><td><code>~/Pictures/Lucero Sync/YYYY/MM</code></td><td><code>~/Downloads/Lucero Sync</code></td></tr>
         </tbody>
