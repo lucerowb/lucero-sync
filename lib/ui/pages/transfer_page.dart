@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_controller.dart';
 import '../../core/models.dart';
 import '../../core/platform.dart';
-import '../../share/owly.dart';
+import '../../share/linux_airdrop.dart';
 import '../../share/share_sender.dart';
 import '../format.dart';
 import '../open.dart';
@@ -111,8 +111,8 @@ class TransferPage extends StatelessWidget {
                           // On phones "Show files" already opens the share sheet.
                           if (Caps.isDesktop)
                             FutureBuilder(
-                              future: Owly.installed(),
-                              builder: (context, owly) => switch (systemShareLabel(owly: owly.data ?? false)) {
+                              future: LinuxAirDrop.detect(),
+                              builder: (context, tool) => switch (systemShareLabel(linuxAirDrop: tool.data != null)) {
                                 final label? => OutlinedButton.icon(
                                     onPressed: () => shareElsewhere(context, paths: i.paths),
                                     icon: const Icon(Icons.wifi_tethering_rounded),

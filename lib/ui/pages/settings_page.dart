@@ -63,6 +63,20 @@ class SettingsPage extends StatelessWidget {
                   value: app.receiving,
                   onChanged: app.setReceiving,
                 ),
+                if (app.linuxAirDrop case final tool?) ...[
+                  const Divider(indent: 72),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.wifi_tethering_rounded),
+                    title: const Text('AirDrop'),
+                    subtitle: Text(switch (app.airDropUntil) {
+                      final until? => 'iPhones and Macs nearby can send to this computer until '
+                          '${TimeOfDay.fromDateTime(until).format(context)} · through ${tool.tool}',
+                      null => 'Let iPhones and Macs nearby send to this computer for 10 minutes',
+                    }),
+                    value: app.airDropUntil != null,
+                    onChanged: app.setAirDropReceiving,
+                  ),
+                ],
                 const Divider(indent: 72),
                 ListTile(
                   leading: const Icon(Icons.qr_code_rounded),

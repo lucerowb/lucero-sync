@@ -1,14 +1,37 @@
 # Changelog
 
-## Unreleased
+## 0.3.2
 
-### New
-- **AirDrop, Quick Share & more:** once you've picked something, an extra option under your devices sends it to anyone nearby through the system's own sharing. It opens AirDrop directly on a Mac, Quick Share on Android, and Nearby Sharing on Windows. On Linux it appears when [owly](https://github.com/t4t5/owly) is installed and sends to iPhones and Macs over AirDrop. On a computer, finished incoming transfers have the same button.
-- **Android saves to `Download/LuceroSync`** without needing All files access, so any file manager can open received files. Backups go to `Download/LuceroSync/Backups`, or to `Pictures/LuceroSync` with All files access so they appear in the gallery. Files already received stay where they were.
-- **Update alerts:** the app checks GitHub for a new release when it opens and every 12 hours, and shows a banner with a download link (on iPhone it points you to AltStore or SideStore). Turn it off in Settings › About.
+Faster, friendlier, and now on speaking terms with AirDrop.
 
-### Faster
-- **Transfers are several times faster.** Files are no longer fingerprinted before and after sending (TLS already guarantees every byte arrives unchanged), three files upload at once, and progress redraws no longer slow the transfer. Sending to a device on 0.3.1 or older still works; those transfers fingerprint files as before.
+### Highlights
+
+- **Transfers are several times faster.** In our test, 84 MB of photos between two devices (simulators on one Mac) went from about 25 seconds to about 2. Files are no longer fingerprinted twice, three upload at once, and progress updates no longer slow the transfer down.
+- **AirDrop, Quick Share & more.** Pick what to send and a quiet new option appears under your devices, for people who don't have Lucero Sync:
+  - **Mac:** opens AirDrop's own window directly.
+  - **iPhone & iPad:** the share sheet, with AirDrop first.
+  - **Android:** Quick Share and the rest of the share sheet, without Lucero Sync listing itself, and with files shared in place instead of copied first.
+  - **Windows:** Nearby Sharing.
+  - **Linux:** real AirDrop with iPhones and Macs, both ways, through [owly](https://github.com/t4t5/owly) or [a4e](https://github.com/benitbuhner/airdrop-for-everything) when one is installed. Turn on **Settings › Receiving › AirDrop** to be visible for 10 minutes; every request asks first.
+- **Android saves where you can find it.** Received files go to `Download/LuceroSync`, with no special permission needed, and other apps see them straight away.
+- **Update alerts.** A banner tells you when a new version is out, with the right download for your device. It's one anonymous request to GitHub; turn it off in **Settings › About**.
+
+### Also new
+
+- On a computer, a finished incoming transfer can be passed on with AirDrop or Nearby Sharing in one click.
+- The guide covers AirDrop on Linux, staying up to date, and automatic Android updates with Obtainium.
+
+### Fixed
+
+- Received files on Android without "All files access" were saved in `Android/data/…`, which file managers can't open on most phones.
+- Received files on Android weren't added to the media index, so some apps didn't show them until a rescan.
+- Two files with the same name finishing at the same moment could have overwritten each other, and a finished transfer could have been logged twice.
+
+### Upgrade notes
+
+- **Update every device you send between.** A 0.3.2 device can still send to and receive from 0.3.1, but it falls back to the slower fingerprinting.
+- On Android, files you received before this update stay where they were. Backups without "All files access" now go to `Download/LuceroSync/Backups`; with it, they still go to `Pictures/LuceroSync`.
+- Photo backups are still verified with SHA-256. File shares now rely on TLS 1.3, which already rejects any altered byte, plus a size check.
 
 ## 0.3.1
 

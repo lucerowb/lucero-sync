@@ -54,6 +54,7 @@ class _PromptHostState extends State<PromptHost> {
         PairingRequest() => PairingRequestDialog(request: prompt),
         ShareRequest() => _ShareRequestDialog(request: prompt),
         TextReceived() => _TextDialog(prompt: prompt),
+        AirDropRequest() => _AirDropDialog(request: prompt),
       },
     ).whenComplete(() {
       prompt.answer(false); // no-op if already answered
@@ -135,6 +136,48 @@ class _ShareRequestDialogState extends State<_ShareRequestDialog> {
       actions: [
         TextButton(onPressed: () => widget.request.answer(false), child: const Text('Decline')),
         FilledButton(onPressed: () => widget.request.answer(true), child: const Text('Accept')),
+      ],
+    );
+  }
+}
+
+class _AirDropDialog extends StatelessWidget {
+  const _AirDropDialog({required this.request});
+  final AirDropRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final a = request.ask;
+    final theme = Theme.of(context);
+    final shown = a.items.take(5).toList();
+    return AlertDialog(
+      icon: const Icon(Icons.wifi_tethering_rounded, size: 36),
+      title: Text('${a.sender} wants to AirDrop you '
+          '${a.items.length == 1 ? 'something' : '${a.items.length} items'}'),
+      content: SizedBox(
+        width: 400,
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          for (final name in shown)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(children: [
+                Icon(fileIcon(name), size: 20, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: 10),
+                Expanded(child: Text(name, overflow: TextOverflow.ellipsis)),
+              ]),
+            ),
+          if (a.items.length > shown.length)
+            Text('and ${a.items.length - shown.length} more', style: theme.textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Text(
+            'Anyone nearby can send while AirDrop is on, so accept only what you expect.',
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ]),
+      ),
+      actions: [
+        TextButton(onPressed: () => request.answer(false), child: const Text('Decline')),
+        FilledButton(onPressed: () => request.answer(true), child: const Text('Accept')),
       ],
     );
   }

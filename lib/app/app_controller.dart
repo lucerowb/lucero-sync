@@ -18,6 +18,7 @@ import '../net/peer_client.dart';
 import '../net/server.dart';
 import '../net/web_access.dart';
 import '../security/pairing_crypto.dart';
+import '../share/linux_airdrop.dart';
 import '../share/share_sender.dart';
 import '../storage/storage.dart';
 import 'live_transfers.dart';
@@ -46,6 +47,12 @@ class ShareRequest extends AppPrompt {
   ShareRequest(this.prompt);
   final ShareOfferPrompt prompt;
   bool alwaysAccept = false;
+}
+
+/// Someone nearby wants to AirDrop to this computer (Linux, owly or a4e).
+class AirDropRequest extends AppPrompt {
+  AirDropRequest(this.ask);
+  final AirDropAsk ask;
 }
 
 class TextReceived extends AppPrompt {
@@ -118,6 +125,13 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
 
   bool checkUpdates = true;
 
+  /// Linux: owly or a4e, when installed.
+  LinuxAirDrop? linuxAirDrop;
+
+  /// When AirDrop receiving switches itself off; null while off.
+  DateTime? airDropUntil;
+  AirDropListener? _airDrop;
+
   /// A newer release the user hasn't dismissed; shown on the Share page.
   UpdateInfo? update;
   Timer? _updateTimer;
@@ -163,6 +177,7 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
     receiving = await db.getBool('receiving', fallback: true);
     includeVideos = await db.getBool('include_videos', fallback: true);
     checkUpdates = await db.getBool('check_updates', fallback: true);
+    linuxAirDrop = await LinuxAirDrop.detect();
     unawaited(_checkForUpdate());
     _updateTimer = Timer.periodic(const Duration(hours: 12), (_) => _checkForUpdate());
     backupTargetId = await db.getValue('backup_target');
@@ -357,6 +372,60 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
     if (found == null || found.version == await db.getValue('dismissed_update')) return;
     update = found;
     notifyListeners();
+  }
+
+  /// Lets iPhones, iPads and Macs nearby AirDrop to this computer for 10
+  /// minutes, like Apple's "Everyone for 10 minutes". Each request asks first.
+  Future<void> setAirDropReceiving(bool on) async {
+    _airDrop?.stop();
+    _airDrop = null;
+    airDropUntil = null;
+    final tool = linuxAirDrop;
+    if (on && tool != null) {
+      const window = Duration(minutes: 10);
+      try {
+        final listener = await tool.receive(
+          dir: storage.receivedRoot.path,
+          duration: window,
+          ask: (a) {
+            final request = AirDropRequest(a);
+            // The tools decline by themselves after ~15 s; close the dialog first.
+            Timer(const Duration(seconds: 12), () => request.answer(false));
+            return _ask(request);
+          },
+          onFiles: _airDropReceived,
+          onLinks: (from, links) => unawaited(_ask(TextReceived(_browser(from), links.join('\n')))),
+        );
+        _airDrop = listener;
+        airDropUntil = DateTime.now().add(window);
+        unawaited(listener.done.then((_) {
+          if (_airDrop != listener) return;
+          _airDrop = null;
+          airDropUntil = null;
+          notifyListeners();
+        }));
+      } catch (e) {
+        _log('AirDrop receiving failed: $e');
+      }
+    }
+    notifyListeners();
+  }
+
+  Future<void> _airDropReceived(String from, List<String> paths) async {
+    final record = TransferRecord(
+      id: 'airdrop-${DateTime.now().microsecondsSinceEpoch}',
+      direction: TransferDirection.incoming,
+      kind: TransferKind.files,
+      peerId: 'airdrop',
+      peerName: from,
+      title: transferTitle([for (final p in paths) p.split(Platform.pathSeparator).last]),
+      size: paths.fold(0, (a, p) => a + (File(p).existsSync() ? File(p).lengthSync() : 0)),
+      status: TransferStatus.done,
+      paths: paths,
+      createdAtMs: DateTime.now().millisecondsSinceEpoch,
+    );
+    await db.addTransfer(record);
+    incomingFinished(record);
   }
 
   /// "Later": hide this version's banner; a newer one shows again.
@@ -700,6 +769,7 @@ class AppController extends ChangeNotifier implements ServerDelegate, WebAccessH
   void dispose() {
     _liveTimer?.cancel();
     _updateTimer?.cancel();
+    _airDrop?.stop();
     _nearbySub?.cancel();
     localApi?.stop();
     discovery.dispose();

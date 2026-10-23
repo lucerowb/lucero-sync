@@ -10,7 +10,7 @@ import '../../app/app_controller.dart';
 import '../../app/updates.dart';
 import '../../core/models.dart';
 import '../../core/platform.dart';
-import '../../share/owly.dart';
+import '../../share/linux_airdrop.dart';
 import '../../share/share_sender.dart';
 import '../format.dart';
 import '../open.dart';
@@ -46,13 +46,13 @@ class _SharePageState extends State<SharePage> {
   /// Text/links shared into the app from another app, sent with the files.
   final _texts = <String>[];
 
-  /// owly (AirDrop on Linux) is installed.
-  bool _owly = false;
+  /// owly or a4e (AirDrop on Linux) is installed.
+  bool _linuxAirDrop = false;
 
   @override
   void initState() {
     super.initState();
-    Owly.installed().then((v) => mounted && v ? setState(() => _owly = true) : null);
+    LinuxAirDrop.detect().then((t) => mounted && t != null ? setState(() => _linuxAirDrop = true) : null);
     app.mobile.incoming.addListener(_takeShared);
     _takeShared();
   }
@@ -460,7 +460,7 @@ class _SharePageState extends State<SharePage> {
         ),
         const SizedBox(height: 10),
       ],
-      if (systemShareLabel(owly: _owly) case final label? when selecting || _texts.isNotEmpty) ...[
+      if (systemShareLabel(linuxAirDrop: _linuxAirDrop) case final label? when selecting || _texts.isNotEmpty) ...[
         _ElsewhereCard(label: label, onTap: _sendElsewhere),
         const SizedBox(height: 10),
       ],

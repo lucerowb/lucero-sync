@@ -1,5 +1,7 @@
 package com.lucero.lucero_sync
 
+import android.content.ClipData
+import android.content.ComponentName
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -8,6 +10,8 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
+import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -46,6 +50,12 @@ class MainActivity : FlutterActivity() {
                             MediaScannerConnection.scanFile(this, arrayOf(path), null, null)
                             result.success(null)
                         }
+                    }
+                    "share" -> {
+                        // False (e.g. a file outside the shareable folders) falls back to share_plus.
+                        result.success(runCatching {
+                            share(call.argument<List<String>>("paths") ?: emptyList(), call.argument<String>("text"))
+                        }.isSuccess)
                     }
                     else -> result.notImplemented()
                 }
@@ -140,5 +150,32 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val HANDLED = "lucero_share_handled"
+    }
+
+    /** The system share sheet (Quick Share first), without Lucero Sync itself in it. */
+    private fun share(paths: List<String>, text: String?) {
+        val uris = ArrayList(paths.map { FileProvider.getUriForFile(this, "$packageName.files", File(it)) })
+        val intent = Intent(if (uris.size > 1) Intent.ACTION_SEND_MULTIPLE else Intent.ACTION_SEND).apply {
+            type = if (uris.isEmpty()) "text/plain" else mimeOf(paths)
+            if (uris.size == 1) putExtra(Intent.EXTRA_STREAM, uris[0])
+            if (uris.size > 1) putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+            if (!text.isNullOrEmpty()) putExtra(Intent.EXTRA_TEXT, text)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            if (uris.isNotEmpty()) clipData = ClipData.newRawUri(null, uris[0]).apply { uris.drop(1).forEach { addItem(ClipData.Item(it)) } }
+        }
+        val chooser = Intent.createChooser(intent, null).apply {
+            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, arrayOf(ComponentName(this@MainActivity, MainActivity::class.java)))
+        }
+        startActivity(chooser)
+    }
+
+    // One MIME type for all the files: exact if they agree, else the shared family (image, video…), else any.
+    private fun mimeOf(paths: List<String>): String {
+        val types = paths.map {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(it.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream"
+        }.toSet()
+        if (types.size == 1) return types.first()
+        val families = types.map { it.substringBefore('/') }.toSet()
+        return if (families.size == 1) "${families.first()}/*" else "*/*"
     }
 }

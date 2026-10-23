@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css?v=0.3.1">
+  <link rel="stylesheet" href="assets/site.css?v=0.3.2">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -150,7 +150,7 @@
             <li>Nothing leaves your network</li>
             <li>Encrypted with keys only your devices hold</li>
             <li>As fast as your local Wi-Fi</li>
-            <li>Bit-for-bit originals, verified by SHA-256</li>
+            <li>Bit-for-bit originals, saved only when complete</li>
           </ul>
         </div>
       </div>
@@ -187,7 +187,7 @@
           <span class="num">FR 04A</span>
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></div>
           <h3>Picks up mid-file</h3>
-          <p>If the Wi-Fi drops or the app closes, the next attempt continues from the exact byte it reached, even halfway through a 4 GB video. Every file is checked before it's saved.</p>
+          <p>If the Wi-Fi drops or the app closes, the next attempt continues from the exact byte it reached, even halfway through a 4 GB video. Nothing is saved until the whole file has arrived intact.</p>
         </article>
         <article class="cell">
           <span class="num">FR 05A</span>
@@ -200,6 +200,24 @@
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="11" rx="1"/></svg></div>
           <h3>Everywhere you are</h3>
           <p>iPhone, iPad, Android, Mac, Windows and Linux, plus any browser. Share from other apps' share sheets, follow progress in the Dynamic Island or menu bar, and right-click to send from Chrome or Firefox.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 07A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 0 1 0-7m7 0a5 5 0 0 1 0 7M5.6 18.4a9 9 0 0 1 0-12.8m12.8 0a9 9 0 0 1 0 12.8"/></svg></div>
+          <h3>AirDrop &amp; Quick Share too</h3>
+          <p>Sending to a friend without the app? Hand anything to AirDrop, Quick Share or Nearby Sharing from the same screen. On Linux, AirDrop works both ways with <a href="https://github.com/t4t5/owly">owly</a>.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 08A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 14h5m0 0-2-2m2 2-2 2"/></svg></div>
+          <h3>Whole folders, at full speed</h3>
+          <p>Send a folder and it arrives with every subfolder in place. Several files travel at once, and a live page shows each file, the speed and the time left.</p>
+        </article>
+        <article class="cell">
+          <span class="num">FR 09A</span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+          <h3>Tells you what's new</h3>
+          <p>A quiet banner appears when a new version is out, with the right download for your device. One anonymous check, nothing about you sent, and a switch to turn it off.</p>
         </article>
       </div>
     </div>
@@ -271,7 +289,7 @@
         <div class="facts">
           <span class="fact"><b>TLS 1.3</b> pinned to each device</span>
           <span class="fact"><b>P-256</b> key per device</span>
-          <span class="fact"><b>SHA-256</b> on every file</span>
+          <span class="fact"><b>SHA-256</b> on every backup</span>
           <span class="fact"><b>0</b> accounts</span>
           <span class="fact"><b>0</b> servers</span>
           <span class="fact"><b>MIT</b> source you can read</span>
@@ -313,11 +331,19 @@
         </details>
         <details>
           <summary>Is the transfer encrypted?</summary>
-          <p>Yes. Since v0.2, every connection uses TLS 1.3 pinned to the certificate of the device you paired with, and every file is verified with SHA-256 before it's saved. The <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a> lists exactly what it protects against.</p>
+          <p>Yes. Since v0.2, every connection uses TLS 1.3 pinned to the certificate of the device you paired with, which also guarantees no byte is changed on the way. Files are saved only once complete, and photo backups are additionally verified with SHA-256. The <a href="https://github.com/lucerowb/lucero-sync/blob/main/SECURITY.md">security policy</a> lists exactly what it protects against.</p>
         </details>
         <details>
           <summary>Why isn't it on the App Store or Play Store?</summary>
           <p>App Store distribution needs a paid developer account, and Play Store policy restricts the "all files access" permission that lets backups land in your gallery. Android installs from an APK. iPhones use AltStore, SideStore or a free Apple ID build. Computers download a zip. The <a href="guide.html">guide</a> walks through each.</p>
+        </details>
+        <details>
+          <summary>Can I send to someone who doesn't have Lucero Sync?</summary>
+          <p>Yes. Pick what to send, then tap <strong>AirDrop &amp; more</strong> under your devices (<strong>Quick Share &amp; more</strong> on Android). It opens your device's own sharing, straight to AirDrop on a Mac. Linux gets AirDrop through <a href="https://github.com/t4t5/owly">owly</a> or <a href="https://github.com/benitbuhner/airdrop-for-everything">a4e</a>, including receiving from iPhones for 10 minutes at a time.</p>
+        </details>
+        <details>
+          <summary>Where do received files go on Android?</summary>
+          <p>In <code>Download/LuceroSync</code>, where every file manager can find them, with no special permission needed. Turn on <strong>All files access</strong> only if you'd like photo backups in your gallery (<code>Pictures/LuceroSync</code>).</p>
         </details>
         <details>
           <summary>Do both devices need to stay open?</summary>
@@ -383,6 +409,6 @@
   </div>
 </footer>
 
-<script src="assets/site.js?v=0.3.1"></script>
+<script src="assets/site.js?v=0.3.2"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Young+Serif&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css?v=0.3.1">
+  <link rel="stylesheet" href="assets/site.css?v=0.3.2">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -34,7 +34,7 @@
 <main id="main">
   <div class="doc-hero">
     <div class="wrap">
-      <span class="mono">User guide · v0.2</span>
+      <span class="mono">User guide · v0.3</span>
       <h1>Set up Lucero Sync</h1>
       <p>Install the app on two or more devices, pair them once, and then share files or back up your photos whenever they're on the same Wi-Fi.</p>
     </div>
@@ -52,12 +52,14 @@
         <li><a href="#linux">Install on Linux</a></li>
         <li><a href="#pair">Pair your devices</a></li>
         <li><a href="#share">Send files &amp; text</a></li>
+        <li><a href="#airdrop">AirDrop, Quick Share &amp; more</a></li>
         <li><a href="#from-apps">Share from other apps</a></li>
         <li><a href="#progress">Progress, Dynamic Island &amp; tray</a></li>
         <li><a href="#web">Web access</a></li>
         <li><a href="#extension">Browser extension</a></li>
         <li><a href="#backup">Back up photos</a></li>
         <li><a href="#files">Where files are saved</a></li>
+        <li><a href="#updates">Staying up to date</a></li>
         <li><a href="#upgrade">Upgrading from 0.1</a></li>
         <li><a href="#troubleshooting">Troubleshooting</a></li>
         <li><a href="#reset">Removing &amp; resetting</a></li>
@@ -131,6 +133,7 @@ cp ios/Flutter/Signing.example.xcconfig ios/Flutter/Signing.local.xcconfig</pre>
 <pre>mkdir lucero-sync &amp;&amp; tar -xzf lucero-sync-linux-x64.tar.gz -C lucero-sync
 cd lucero-sync &amp;&amp; ./install.sh</pre></li>
         <li>If you use a firewall, allow TCP port 8765 and mDNS, for example <code>sudo ufw allow 8765/tcp</code> and <code>sudo ufw allow 5353/udp</code>.</li>
+        <li>Optional: install <a href="https://github.com/t4t5/owly">owly</a> for <a href="#airdrop">AirDrop with iPhones and Macs</a>.</li>
       </ol>
 
       <h2 id="pair">Pair your devices</h2>
@@ -161,7 +164,14 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
 
       <h2 id="airdrop">AirDrop, Quick Share &amp; more</h2>
       <p>To send to someone who doesn't have Lucero Sync, pick what to send as usual, then tap <strong>AirDrop &amp; more</strong> under your devices (<strong>Quick Share &amp; more</strong> on Android, <strong>Nearby Sharing &amp; more</strong> on Windows). It opens your device's own sharing: on a Mac, straight to AirDrop. On a computer, a finished incoming transfer has the same button, to pass the files on.</p>
-      <p><strong>Linux:</strong> install <a href="https://github.com/t4t5/owly">owly</a> and the button appears as <strong>AirDrop</strong>. It finds nearby iPhones, iPads and Macs and sends to them directly. The other device's AirDrop must be set to <strong>Everyone for 10 minutes</strong>, and depending on your Wi-Fi card, Wi-Fi may pause briefly while AirDrop runs.</p>
+      <p>On Android the list leaves out Lucero Sync itself, and files are shared straight from where they are, with no extra copy.</p>
+      <h3>AirDrop on Linux</h3>
+      <p>Install <a href="https://github.com/t4t5/owly">owly</a> (recommended) or <a href="https://github.com/benitbuhner/airdrop-for-everything">a4e</a>, then restart Lucero Sync. Both speak Apple's AirDrop protocol over your Wi-Fi card; check that yours is supported with <code>owly doctor</code>.</p>
+      <ul>
+        <li><strong>Send:</strong> pick what to send and tap <strong>AirDrop</strong>. Lucero Sync looks for nearby iPhones, iPads and Macs; tap one. The other device's AirDrop must be set to <strong>Everyone for 10 minutes</strong>.</li>
+        <li><strong>Receive:</strong> turn on <strong>Settings › Receiving › AirDrop</strong>. For the next 10 minutes, iPhones and Macs nearby see this computer in their AirDrop list. Each request asks you first; accepted files go to your Received folder and appear in <strong>Activity</strong>, and links open in a dialog. With a firewall, allow owly's port on the AirDrop interface: <code>sudo ufw allow in on awdl0 to any port 8771 proto tcp</code>.</li>
+      </ul>
+      <p>Depending on your Wi-Fi card, owly may disconnect Wi-Fi while AirDrop is on, which also pauses Lucero Sync transfers; it reconnects when AirDrop turns off. With a4e, links are sent as a text file.</p>
 
       <h2 id="from-apps">Share from other apps</h2>
       <p>In Photos, Files, a browser or any other app, tap <strong>Share</strong> and choose <strong>Lucero Sync</strong>. Lucero Sync opens with the items ready; tap the device to send them to. On iPhone, if Lucero Sync isn't in the first row, tap <strong>More</strong> and add it to your favourites.</p>
@@ -215,6 +225,13 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
         <p>Files received on iOS live inside the app, and <strong>iOS deletes them if you uninstall Lucero Sync</strong>. Move them out with the Files app, or use <strong>Activity › Share or save</strong>, before uninstalling.</p>
       </div>
 
+      <h2 id="updates">Staying up to date</h2>
+      <p>When a new version is out, a banner on <strong>Share</strong> offers the right download for your device. Install it over the old one; your pairings and settings stay. The check is one anonymous request to GitHub when the app opens and every 12 hours, and you can turn it off under <strong>Settings › About › Check for updates</strong>.</p>
+      <ul>
+        <li><strong>iPhone &amp; iPad:</strong> AltStore and SideStore show the update on their own; SideStore can install it in the background.</li>
+        <li><strong>Android:</strong> for fully automatic updates, add <code>https://github.com/lucerowb/lucero-sync</code> to <a href="https://obtainium.imranr.dev">Obtainium</a>.</li>
+      </ul>
+
       <h2 id="upgrade">Upgrading from 0.1</h2>
       <p>Version 0.2 replaces the old connection protocol with an encrypted one. After updating <strong>all</strong> your devices, pair them again. Your backup history is kept, so photos that were already backed up aren't sent again.</p>
 
@@ -259,6 +276,6 @@ cd lucero-sync &amp;&amp; ./install.sh</pre></li>
   </div>
 </footer>
 
-<script src="assets/site.js?v=0.3.1"></script>
+<script src="assets/site.js?v=0.3.2"></script>
 </body>
 </html>

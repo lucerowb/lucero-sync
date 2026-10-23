@@ -14,7 +14,7 @@ The full design is in [ARCHITECTURE.md › Security model](ARCHITECTURE.md#secur
 - **All transfers use TLS 1.3**, pinned to the paired device's fingerprint. No certificate authorities are trusted.
 - **Pairing uses a commitment-based comparison code** that both people confirm, or a QR code that carries the fingerprint and a one-time secret.
 - **Paired devices authenticate with 256-bit bearer tokens**, stored only as hashes and sent only over the pinned channel.
-- **Every received file is verified** by SHA-256 before it's saved. File names are sanitised.
+- **Received files are saved only when complete and unaltered.** TLS 1.3 authenticates every byte in transit and the size is checked; photo backups are also verified by SHA-256. File names are sanitised, and nothing is written outside the destination folder.
 - **Discovery data is treated as untrusted.** A paired device advertising a different identity is flagged and not trusted.
 - **Web access is off by default.** When on, browsers can't pin the certificate, so it relies on a 6-digit code shown on the device (rate limited per address, rotated after repeated failures) that starts a short-lived session. Turning it off, or closing the app, ends every session. Browsers can only download files you explicitly offer.
 - **The browser-extension API listens on 127.0.0.1 only**, needs a token issued for a one-time code from Settings, and refuses requests from web pages (`Origin`) and DNS-rebinding attempts (`Host`).
@@ -34,6 +34,7 @@ The full design is in [ARCHITECTURE.md › Security model](ARCHITECTURE.md#secur
 
 - Web access can't pin certificates the way the apps do. Someone on your network who intercepts the browser's first connection could present their own certificate; compare the fingerprint shown in **Settings › Web access** with the one the browser shows before entering the code.
 
+- **AirDrop on Linux** (through owly or a4e) uses Apple's AirDrop protocol, not Lucero Sync's pinned TLS. While it's on, anyone nearby can send a request; each one asks before anything is saved, and receiving switches itself off after 10 minutes. "AirDrop & more" on other platforms hands files to the operating system's own sharing, which has its own security.
 - The private key is stored in the app's private data folder, not in the Secure Enclave or Android Keystore.
 - On Android, QR scanning uses Google ML Kit, which sends diagnostic data to Google. It doesn't send the camera image or your files.
 - Releases aren't code-signed by a paid Apple or Microsoft developer certificate yet, so verify you downloaded them from the [official repository](https://github.com/lucerowb/lucero-sync/releases).

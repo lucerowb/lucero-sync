@@ -32,14 +32,14 @@ Lucero Sync moves files between your phones and computers on the same Wi-Fi. Dev
 - **Secure by design:**
   - TLS 1.3, pinned to each device's certificate fingerprint.
   - Pairing with a comparison code that both people confirm, or a one-time QR code.
-  - Every file is SHA-256-verified before it's saved.
+  - Files are saved only once complete and unaltered; photo backups are also SHA-256-verified.
 - **Never duplicates.** Each backup is checked against a ledger and against content hashes.
 - **Resumes mid-file** after Wi-Fi drops, restarts or address changes.
 - **Send folders**, keeping their structure, and follow every file on a **transfer page** with speed and time left.
 - **Live progress on both devices.** The sender and the receiver both see every transfer and backup as it happens.
 - **Ask or auto-accept** incoming files, per device.
 - **Share from any app.** Lucero Sync appears in the iPhone and Android share sheets.
-- **AirDrop & Quick Share built in.** Send to people without the app through AirDrop, Quick Share or Nearby Sharing, and on Linux through [owly](https://github.com/t4t5/owly).
+- **AirDrop & Quick Share built in.** Send to people without the app through AirDrop, Quick Share or Nearby Sharing, and on Linux, both ways, through [owly](https://github.com/t4t5/owly) or [a4e](https://github.com/benitbuhner/airdrop-for-everything).
 - **Dynamic Island & Lock Screen** progress on iPhone (Live Activity, iOS 16.2+).
 - **Menu bar / system tray** on Mac, Windows and Linux: progress, quick "Send files to…", and the window can be closed while it keeps receiving.
 - **Web access:** any browser on your Wi-Fi can send to and download from a device, after entering a code shown on it. No app needed on that computer.
@@ -88,7 +88,7 @@ flutter test     # end-to-end protocol tests over real TLS
  ┌────────────────────┐   Bonjour (discovery)  ┌────────────────────┐
  │ own key + cert     │ ─────────────────────▶ │ own key + cert     │
  │ pins computer's FP │ ══ TLS 1.3, pinned ══▶ │ pins phone's FP    │
- │ backup ledger      │   files, text, photos  │ verifies SHA-256   │
+ │ backup ledger      │   files, text, photos  │ checks every file  │
  └────────────────────┘                        └────────────────────┘
 ```
 
